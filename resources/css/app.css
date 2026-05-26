@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --radius: 1rem;
+    /* Warm cozy palette: béžové pozadie, terakota akcent, taupe ikony */
+    --background: oklch(0.962 0.012 60);
+    --foreground: oklch(0.21 0.03 35);
+    --card: oklch(0.93 0.025 70);
+    --card-foreground: oklch(0.21 0.03 35);
+    --popover: oklch(0.93 0.025 70);
+    --popover-foreground: oklch(0.21 0.03 35);
+    --primary: oklch(0.6 0.11 45);
+    --primary-foreground: oklch(0.97 0.018 75);
+    --secondary: oklch(0.65 0.1 45);
+    --secondary-foreground: oklch(0.97 0.018 75);
+    --muted: oklch(0.93 0.025 70);
+    --muted-foreground: oklch(0.62 0.05 55);
+    --accent: oklch(0.6 0.11 45);
+    --accent-foreground: oklch(0.97 0.018 75);
+    --destructive: oklch(0.58 0.22 25);
+    --destructive-foreground: oklch(0.99 0.003 80);
+    --border: oklch(0.52 0.13 40);
+    --input: oklch(0.9 0.02 65);
+    --ring: oklch(0.6 0.11 45);
+
+    --icon: oklch(0.62 0.05 55);
+    --cream: oklch(0.93 0.025 70);
+    --cream-light: oklch(0.97 0.018 75);
+    --sage: oklch(0.6 0.11 45);
+
+    --heart: oklch(0.6 0.11 45);
+    --heart-soft: oklch(0.78 0.06 55);
+    --heart-medium: oklch(0.75 0.07 50);
+
+    --gradient-heart: linear-gradient(135deg, oklch(0.66 0.12 50), oklch(0.55 0.11 40));
+    --gradient-warm: linear-gradient(180deg, oklch(0.98 0.012 70), oklch(0.93 0.025 70));
+    --shadow-heart: 0 10px 30px -10px color-mix(in oklab, var(--heart) 45%, transparent);
+    --shadow-soft: 0px 8px 20px rgba(120, 80, 40, 0.22), 0px 2px 6px rgba(120, 80, 40, 0.16);
+    --shadow-card: 0px 10px 24px rgba(120, 80, 40, 0.22), 0px 4px 10px rgba(120, 80, 40, 0.14);
+    --shadow-rest: 0px 4px 12px rgba(120, 80, 40, 0.12), 0px 2px 4px rgba(120, 80, 40, 0.08);
+    --shadow-hover: 0px 8px 24px rgba(120, 80, 40, 0.18), 0px 4px 8px rgba(120, 80, 40, 0.12);
+    --shadow-pressed: 0px 2px 6px rgba(120, 80, 40, 0.10), 0px 1px 2px rgba(120, 80, 40, 0.06);
+    --focus-ring-glow: 0px 0px 0px 3px rgba(200, 131, 58, 0.15);
+}
+
+@layer base {
+    * {
+        border-color: var(--border);
+    }
+    html {
+        font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    }
+    body {
+        background-color: var(--background);
+        color: var(--foreground);
+        font-feature-settings: 'ss01', 'cv11';
+        -webkit-font-smoothing: antialiased;
+        background-image:
+            radial-gradient(circle at 10% -10%, color-mix(in oklab, var(--heart-soft) 50%, transparent), transparent 45%),
+            radial-gradient(circle at 110% 10%, color-mix(in oklab, var(--cream) 70%, transparent), transparent 50%);
+    }
+    h1, h2, h3, .font-display {
+        font-family: 'Fraunces', ui-serif, Georgia, serif;
+        font-feature-settings: 'ss01';
+        letter-spacing: -0.02em;
+    }
+}
+
+.heart-shape {
+    -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z'/></svg>") center / contain no-repeat;
+            mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z'/></svg>") center / contain no-repeat;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    button:not(:disabled):hover,
+    [role="button"]:not([aria-disabled="true"]):hover,
+    a[role="button"]:hover,
+    .interactive:hover {
+        transform: scale(1.02);
+        box-shadow: var(--shadow-hover);
+    }
+}
+
+button,
+[role="button"],
+a[role="button"],
+.interactive {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    will-change: transform;
+}
+
+button:not(:disabled):active,
+[role="button"]:not([aria-disabled="true"]):active,
+a[role="button"]:active,
+.interactive:active {
+    transform: scale(0.97);
+    box-shadow: var(--shadow-pressed);
+}
+
+/* Cards: resting 3D shadow + lift on hover */
+[class*="rounded-"][class*="bg-card"],
+[class*="rounded-"][class*="bg-background"],
+.card-3d {
+    box-shadow: var(--shadow-rest);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    [class*="rounded-"][class*="bg-card"]:hover,
+    .card-3d:hover {
+        transform: translateY(-1px) scale(1.01);
+        box-shadow: var(--shadow-hover);
+    }
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    border-color: var(--accent) !important;
+    box-shadow: var(--focus-ring-glow) !important;
+    outline: none !important;
+}
+
+input, textarea, select {
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+input:active, textarea:active {
+    transform: scale(0.997);
+}
+
+[role="checkbox"]:active,
+[role="switch"]:active,
+[role="tab"]:active {
+    transform: scale(0.94);
+}
+
+[role="tab"],
+[role="checkbox"],
+[role="switch"] {
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        transform: none !important;
+    }
+}
