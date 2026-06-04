@@ -33,6 +33,7 @@ class SosController extends Controller
     {
         $data = $request->validate([
             'kind' => ['required', 'in:found,lost'],
+            'dog_name' => ['nullable', 'string', 'max:40'],
             'description' => ['required', 'string', 'min:5', 'max:1000'],
             'city' => ['nullable', 'string', 'max:60'],
             'phone' => ['nullable', 'string', 'max:40'],
@@ -40,6 +41,13 @@ class SosController extends Controller
             'contact' => ['nullable', 'string', 'max:120'],
             'photo' => ['nullable', 'image', 'max:8192'],
         ]);
+
+        $nameTrim = trim($data['dog_name'] ?? '');
+        $finalName = $nameTrim !== '' ? $nameTrim : ($data['kind'] === 'found' ? 'nepoznáme' : '');
+        if ($finalName !== '') {
+            $data['description'] = "Meno: {$finalName}\n\n".$data['description'];
+        }
+        unset($data['dog_name']);
 
         if ($request->hasFile('photo')) {
             $path = $request->file('photo')->store('sos-photos/'.Auth::id(), 'public');

@@ -56,20 +56,19 @@
             @endforelse
         </div>
 
-        @auth
-            <section class="mt-8 rounded-2xl border border-dashed border-border bg-card p-4">
-                <p class="font-display text-lg">Chcete nám odporučiť dobrý salón, hotel či škôlku?</p>
-                <p class="mt-1 text-sm text-muted-foreground">Napíšte nám a my to preveríme.</p>
-                <form method="POST" action="{{ route('places.suggest') }}" class="mt-3 flex gap-2">
-                    @csrf
-                    <input type="hidden" name="category" value="{{ $category }}">
-                    <input type="hidden" name="name" value="(z formulára na /places)">
-                    <textarea name="note" rows="2" maxlength="1000" placeholder="Názov, mesto, prečo to odporúčate…" required class="flex-1 rounded-xl border border-input bg-background px-4 py-3 text-sm"></textarea>
-                    <button type="submit" aria-label="Poslať tip" class="inline-flex items-center justify-center rounded-xl bg-accent px-4 py-2 text-sm font-medium text-accent-foreground">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                    </button>
-                </form>
-            </section>
-        @endauth
+        @if (in_array($category, ['grooming', 'hotel', 'daycare']))
+            @php
+                $suggestBody = "Ahoj Ňuffy tím,\n\nrád/rada by som vám odporučil/a toto miesto:\n\nNázov: \nKategória (salón / hotel / škôlka): \nMesto: \nOdkaz (web / Instagram / Facebook): \nPrečo ho odporúčam: \n\nĎakujem!";
+                $suggestMailto = 'mailto:nuffy@nuffy.sk?subject='.rawurlencode('Odporúčanie salónu, hotela, škôlky pre psov').'&body='.rawurlencode($suggestBody);
+            @endphp
+            <div class="mt-8 rounded-2xl border border-border bg-gradient-to-br from-card to-card/60 p-5 text-center shadow-[0_4px_20px_-12px_rgba(0,0,0,0.25)] backdrop-blur-sm">
+                <h3 class="font-display text-base">Chcete nám odporučiť dobrý salón, hotel či škôlku?</h3>
+                <p class="mt-1 text-xs text-muted-foreground">Napíšte nám a my to preveríme.</p>
+                <a href="{{ $suggestMailto }}" class="mt-4 inline-flex items-center gap-2 rounded-full bg-accent px-5 py-2 text-sm font-medium text-accent-foreground shadow-[var(--shadow-soft)] transition hover:opacity-90">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                    Odporučiť miesto
+                </a>
+            </div>
+        @endif
     </div>
 @endsection

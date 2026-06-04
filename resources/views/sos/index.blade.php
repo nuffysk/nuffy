@@ -44,6 +44,13 @@
                 @csrf
                 <input type="hidden" name="kind" value="{{ $kind }}">
                 <div class="space-y-1">
+                    <label class="text-sm font-medium">Meno psa</label>
+                    <input type="text" name="dog_name" maxlength="40" placeholder="{{ $kind === 'found' ? 'napr. Bella (ak nevieš, nechaj prázdne)' : 'napr. Bella' }}" class="block w-full rounded-xl border border-input bg-background px-4 py-3 text-sm">
+                    @if ($kind === 'found')
+                        <p class="text-[11px] text-muted-foreground">Ak meno nevieš, automaticky uvedieme „nepoznáme“.</p>
+                    @endif
+                </div>
+                <div class="space-y-1">
                     <label class="text-sm font-medium">Popis</label>
                     <textarea name="description" rows="4" minlength="5" maxlength="1000" placeholder="Napr. nájdený malý hnedý psík bez obojka pri parku…" required class="block w-full rounded-xl border border-input bg-background px-4 py-3 text-sm"></textarea>
                 </div>
@@ -107,6 +114,35 @@
                                 </a>
                             @endif
                         @endauth
+                        @php
+                            $typLabel = $r->kind === 'found' ? 'Nájdený pes' : 'Stratený pes';
+                            $menoPsa = 'Neznámy';
+                            if (preg_match('/^Meno:\s*(.+)$/mu', $r->description, $m)) {
+                                $n = trim($m[1]);
+                                if ($n !== '' && mb_strtolower($n) !== 'nepoznáme') {
+                                    $menoPsa = $n;
+                                }
+                            }
+                            $neaktBody = "🐾 Nový podnet od používateľa\n\n"
+                                ."Niekto nahlásil inzerát na nuffy.sk ako neaktuálny. Tu sú podrobnosti:\n\n"
+                                ."📋 Detaily inzerátu\n\n"
+                                ."Typ: {$typLabel}\n"
+                                ."Meno psa: {$menoPsa}\n"
+                                ."Lokalita: ".($r->city ?: '—')."\n"
+                                ."Dátum zverejnenia: ".$r->created_at->format('d.m.Y')."\n"
+                                ."Dôvod nahlásenia: [doplň dôvod]\n\n"
+                                ."👤 Nahlásil\n\n"
+                                ."Používateľ: [doplň meno/email]\n"
+                                ."Dátum nahlásenia: ".now()->format('d.m.Y, H:i:s')."\n\n"
+                                ."—\nTento email bol automaticky vygenerovaný platformou nuffy.sk.";
+                            $neaktMailto = 'mailto:nuffy@nuffy.sk?subject='.rawurlencode("Nový podnet – neaktuálny inzerát: {$menoPsa}").'&body='.rawurlencode($neaktBody);
+                        @endphp
+                        <div class="mt-5 flex flex-col items-center gap-1.5">
+                            <a href="{{ $neaktMailto }}" class="inline-flex items-center gap-1.5 rounded-full bg-[#C4622D]/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-[#C4622D] shadow-[var(--shadow-soft)] transition hover:bg-[#C4622D]/15 active:scale-[0.98]">
+                                NEAKTUÁLNE
+                            </a>
+                            <p class="text-[11px] text-muted-foreground">Neaktuálny prípad nahlás tu</p>
+                        </div>
                     </div>
                 </article>
             @empty

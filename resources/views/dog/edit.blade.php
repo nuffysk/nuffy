@@ -115,6 +115,11 @@
             </div>
 
             <div class="space-y-2">
+                <label for="health_notes" class="text-sm font-medium">Zdravotné poznámky</label>
+                <textarea id="health_notes" name="health_notes" rows="3" maxlength="500" class="block w-full rounded-xl border border-input bg-background px-4 py-3 text-base">{{ old('health_notes', $dog->health_notes) }}</textarea>
+            </div>
+
+            <div class="space-y-2">
                 <label for="personality" class="text-sm font-medium">Bio psa</label>
                 <textarea id="personality" name="personality" rows="4" maxlength="300" class="block w-full rounded-xl border border-input bg-background px-4 py-3 text-base">{{ old('personality', $dog->personality) }}</textarea>
             </div>

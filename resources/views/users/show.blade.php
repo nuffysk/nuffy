@@ -2,7 +2,9 @@
 
 @section('content')
     @php
-        $sizeLabel = ['small' => 'Malá', 'medium' => 'Stredná', 'large' => 'Veľká'];
+        $sizeLabel = ['small' => 'malý', 'medium' => 'stredný', 'large' => 'veľký'];
+        $genderLabel = ['male' => 'Pes', 'female' => 'Sučka'];
+        $boolLabel = fn ($v) => is_null($v) ? null : ($v ? 'Áno' : 'Nie');
     @endphp
     <div class="pt-6">
         <a href="{{ url()->previous() }}" class="inline-flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1.5 text-sm hover:bg-muted">
@@ -18,13 +20,11 @@
             </div>
             <div class="min-w-0 flex-1 pt-1">
                 <h1 class="truncate font-display text-3xl leading-tight">{{ $user->display_name ?? $user->name }}</h1>
-                @if ($user->city)<p class="mt-1 text-xs text-muted-foreground">{{ $user->city }}</p>@endif
+                <p class="mt-1 text-xs text-muted-foreground">@if ($user->city){{ $user->city }}@else<span class="italic opacity-70">Mesto: neuvedené</span>@endif</p>
             </div>
         </div>
 
-        @if ($user->bio)
-            <p class="mt-4 whitespace-pre-line text-sm leading-relaxed">{{ $user->bio }}</p>
-        @endif
+        <p class="mt-4 whitespace-pre-line text-sm leading-relaxed">@if ($user->bio){{ $user->bio }}@else<span class="italic text-muted-foreground">Bio: neuvedené</span>@endif</p>
 
         @if ($user->instagram)
             <a href="https://instagram.com/{{ ltrim($user->instagram, '@') }}" target="_blank" rel="noopener" class="mt-3 inline-flex items-center gap-2 rounded-full bg-gradient-to-tr from-[#feda75] via-[#fa7e1e] to-[#d62976] px-4 py-2 text-sm font-medium text-white shadow-[var(--shadow-soft)]">
@@ -56,11 +56,18 @@
                     @foreach ($dogs as $d)
                         @php
                             $age = $d->birth_year ? (now()->year - (int) $d->birth_year) : null;
-                            $metaParts = array_filter([
-                                $d->breed,
-                                $d->size ? ($sizeLabel[$d->size] ?? null) : null,
-                                $age ? $age.' r.' : null,
-                            ]);
+                            $dogFields = [
+                                ['Plemeno', $d->breed],
+                                ['Veľkosť', $d->size ? ($sizeLabel[$d->size] ?? null) : null],
+                                ['Vek', $age ? $age.' r.' : null],
+                                ['Pohlavie', ($d->gender && $d->gender !== 'unspecified') ? ($genderLabel[$d->gender] ?? null) : null],
+                                ['Povaha', $d->personality],
+                                ['Veterinár', $d->vet],
+                                ['Zdravotné poznámky', $d->health_notes],
+                                ['Očkovaný', $boolLabel($d->vaccinated)],
+                                ['Čipovaný', $boolLabel($d->microchipped)],
+                                ['Kastrovaný', $boolLabel($d->neutered)],
+                            ];
                         @endphp
                         <div class="overflow-hidden rounded-2xl border border-border bg-card">
                             @if ($d->photo_url)
@@ -84,21 +91,17 @@
                                     </div>
                                 @endif
                             @endif
-                            <div class="p-4">
-                                <p class="font-display text-lg">{{ $d->name }}</p>
-                                @if (! empty($metaParts))
-                                    <p class="text-xs text-muted-foreground">{{ implode(' · ', $metaParts) }}</p>
-                                @endif
-                                @if ($isFriend && $d->personality)
-                                    <p class="mt-2 text-sm">{{ $d->personality }}</p>
-                                @endif
+                            <div class="space-y-2 p-4">
+                                <h3 class="font-display text-xl">{{ $d->name }}</h3>
+                                @foreach ($dogFields as [$label, $value])
+                                    <p class="text-sm leading-relaxed">
+                                        <span class="text-xs uppercase tracking-wider text-muted-foreground">{{ $label }}: </span>@if ($value === null || $value === '')<span class="italic text-muted-foreground">neuvedené</span>@else{{ $value }}@endif
+                                    </p>
+                                @endforeach
                             </div>
                         </div>
                     @endforeach
                 </div>
-                @if ($isFriend)
-                    <a href="{{ route('feed.index') }}" class="mt-4 block text-center text-sm text-accent hover:underline">Pozri najnovšie fotky vo feedu →</a>
-                @endif
             </section>
         @endif
     </div>
