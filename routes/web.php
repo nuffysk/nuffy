@@ -16,6 +16,27 @@ use App\Http\Controllers\UserPublicController;
 use App\Http\Controllers\WalksController;
 use Illuminate\Support\Facades\Route;
 
+// Beta access gate — shared password screen shown before the site is usable.
+Route::get('/gate', function () {
+    if (! config('platform.gate_password') || session('site_gate_unlocked')) {
+        return redirect()->route('home');
+    }
+
+    return view('gate');
+})->name('gate.show');
+
+Route::post('/gate', function (\Illuminate\Http\Request $request) {
+    $request->validate(['password' => ['required', 'string']]);
+
+    if (hash_equals((string) config('platform.gate_password'), $request->input('password'))) {
+        $request->session()->put('site_gate_unlocked', true);
+
+        return redirect()->intended(route('home'));
+    }
+
+    return back()->withErrors(['password' => 'Nesprávne prístupové heslo.']);
+})->name('gate.unlock');
+
 Route::get('/', function () {
     return view('welcome');
 })->name('home');

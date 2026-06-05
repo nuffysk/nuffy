@@ -24,6 +24,19 @@ return [
 
     /*
      |--------------------------------------------------------------------------
+     | Beta Access Gate
+     |--------------------------------------------------------------------------
+     |
+     | Shared access password that locks the whole site behind a single screen
+     | while testing with a closed group. Leave SITE_GATE_PASSWORD empty (or
+     | unset) to disable the gate entirely.
+     |
+     */
+
+    'gate_password' => env('SITE_GATE_PASSWORD'),
+
+    /*
+     |--------------------------------------------------------------------------
      | Route Prefixes
      |--------------------------------------------------------------------------
      |
