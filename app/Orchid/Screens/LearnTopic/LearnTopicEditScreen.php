@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Fields\Cropper;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\TextArea;
 use Orchid\Screen\Screen;
@@ -50,7 +51,7 @@ class LearnTopicEditScreen extends Screen
                 TextArea::make('topic.summary')->title('Anotácia')->rows(2)->maxlength(255),
                 TextArea::make('topic.body')->title('Telo článku')->rows(15),
                 Input::make('topic.video_url')->title('URL videa')->maxlength(255),
-                Input::make('topic.thumbnail_url')->title('URL náhľadu')->maxlength(255),
+                Cropper::make('topic.thumbnail_url')->title('Náhľadový obrázok')->targetRelativeUrl()->help('Nahraj náhľad témy'),
             ]),
         ];
     }
@@ -64,7 +65,7 @@ class LearnTopicEditScreen extends Screen
             'topic.summary' => ['nullable', 'string', 'max:255'],
             'topic.body' => ['nullable', 'string'],
             'topic.video_url' => ['nullable', 'string', 'max:255'],
-            'topic.thumbnail_url' => ['nullable', 'string', 'max:255'],
+            'topic.thumbnail_url' => ['nullable', 'string', 'max:2048'],
         ]);
         $payload = $data['topic'];
         if (empty($payload['slug'])) {

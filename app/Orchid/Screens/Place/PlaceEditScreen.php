@@ -8,6 +8,7 @@ use App\Models\Place;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Fields\Cropper;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Fields\TextArea;
@@ -55,7 +56,7 @@ class PlaceEditScreen extends Screen
                 ])->required(),
                 Input::make('place.city')->title('Mesto')->maxlength(60),
                 Input::make('place.address')->title('Adresa')->maxlength(255),
-                Input::make('place.image_url')->title('URL obrázka')->maxlength(255),
+                Cropper::make('place.image_url')->title('Obrázok')->targetRelativeUrl()->help('Nahraj obrázok miesta'),
                 TextArea::make('place.description')->title('Popis')->rows(5),
             ]),
         ];
@@ -68,7 +69,7 @@ class PlaceEditScreen extends Screen
             'place.category' => ['required', 'in:gastro,park,kennel,daycare,grooming,hotel'],
             'place.city' => ['nullable', 'string', 'max:60'],
             'place.address' => ['nullable', 'string', 'max:255'],
-            'place.image_url' => ['nullable', 'string', 'max:255'],
+            'place.image_url' => ['nullable', 'string', 'max:2048'],
             'place.description' => ['nullable', 'string'],
         ]);
         $place = $place ?? new Place();

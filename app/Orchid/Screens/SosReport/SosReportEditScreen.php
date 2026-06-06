@@ -8,6 +8,7 @@ use App\Models\SosReport;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Orchid\Screen\Actions\Button;
+use Orchid\Screen\Fields\Cropper;
 use Orchid\Screen\Fields\Input;
 use Orchid\Screen\Fields\Select;
 use Orchid\Screen\Fields\TextArea;
@@ -43,7 +44,7 @@ class SosReportEditScreen extends Screen
                 Input::make('report.city')->title('Mesto')->maxlength(60),
                 TextArea::make('report.description')->title('Popis')->rows(5)->required(),
                 Input::make('report.contact')->title('Kontakt')->maxlength(120),
-                Input::make('report.photo_url')->title('URL fotky')->maxlength(255),
+                Cropper::make('report.photo_url')->title('Fotka')->targetRelativeUrl()->help('Nahraj fotku'),
             ]),
         ];
     }
@@ -56,7 +57,7 @@ class SosReportEditScreen extends Screen
             'report.city' => ['nullable', 'string', 'max:60'],
             'report.description' => ['required', 'string'],
             'report.contact' => ['nullable', 'string', 'max:120'],
-            'report.photo_url' => ['nullable', 'string', 'max:255'],
+            'report.photo_url' => ['nullable', 'string', 'max:2048'],
         ]);
         $report->fill($data['report'])->save();
         Toast::info('Uložené.');
