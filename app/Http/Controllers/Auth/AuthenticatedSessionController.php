@@ -26,6 +26,18 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
+        $user = Auth::user();
+
+        // If the account has 2FA enabled, drop the session and require a TOTP code.
+        if ($user->hasTwoFactorEnabled()) {
+            Auth::guard('web')->logout();
+
+            $request->session()->put('login.id', $user->id);
+            $request->session()->put('login.remember', $request->boolean('remember'));
+
+            return redirect()->route('two-factor.login');
+        }
+
         $request->session()->regenerate();
 
         return redirect()->intended(route('home', absolute: false));

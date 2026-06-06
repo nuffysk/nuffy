@@ -36,6 +36,7 @@ class User extends Authenticatable
         'password',
         'remember_token',
         'permissions',
+        'two_factor_secret',
     ];
 
     /**
@@ -44,11 +45,18 @@ class User extends Authenticatable
      * @var array
      */
     protected $casts = [
-        'permissions'          => 'array',
-        'email_verified_at'    => 'datetime',
-        'with_dog_photos'      => 'array',
-        'birth_year'           => 'integer',
+        'permissions'             => 'array',
+        'email_verified_at'       => 'datetime',
+        'with_dog_photos'         => 'array',
+        'birth_year'              => 'integer',
+        'two_factor_secret'       => 'encrypted',
+        'two_factor_confirmed_at' => 'datetime',
     ];
+
+    public function hasTwoFactorEnabled(): bool
+    {
+        return ! is_null($this->two_factor_confirmed_at);
+    }
 
     public function dogs()
     {

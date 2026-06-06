@@ -94,7 +94,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/settings/password', [SettingsController::class, 'sendPasswordReset'])->name('settings.password.send');
     Route::get('/settings/notifications', [SettingsController::class, 'notifications'])->name('settings.notifications');
     Route::get('/settings/blocked', [SettingsController::class, 'blocked'])->name('settings.blocked');
-    Route::view('/settings/two-factor', 'settings.two-factor')->name('settings.two-factor');
+    Route::get('/settings/two-factor', [\App\Http\Controllers\Auth\TwoFactorController::class, 'show'])->name('settings.two-factor');
+    Route::post('/settings/two-factor/enable', [\App\Http\Controllers\Auth\TwoFactorController::class, 'enable'])->name('settings.two-factor.enable');
+    Route::post('/settings/two-factor/confirm', [\App\Http\Controllers\Auth\TwoFactorController::class, 'confirm'])->name('settings.two-factor.confirm');
+    Route::post('/settings/two-factor/disable', [\App\Http\Controllers\Auth\TwoFactorController::class, 'disable'])->name('settings.two-factor.disable');
     Route::get('/settings/export', [SettingsController::class, 'export'])->name('settings.export');
     Route::delete('/settings/account', [SettingsController::class, 'deleteAccount'])->name('settings.account.delete');
 

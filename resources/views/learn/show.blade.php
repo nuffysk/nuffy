@@ -2,7 +2,18 @@
 
 @section('content')
     @php
-        $hideThumbnail = in_array($topic->slug, ['kliesste', 'intoxikacia-vodou', 'mnoziarne', 'osiny', 'cestovanie-so-psom', 'pyometra', 'oblecenie-pre-psa', 'psia-gravidita', 'pes-zerie-vykaly', 'ortopedicke-problemy', 'usi', 'tyranie-psa']);
+        $youtubeMap = [
+            'osiny' => 'https://www.youtube.com/watch?v=vt9Axfxjce4',
+            'usi' => 'https://www.youtube.com/watch?v=amjdi4nvGxo',
+            'intoxikacia-vodou' => 'https://www.youtube.com/watch?v=9zIeR7chWRI',
+            'ortopedicke-problemy' => 'https://www.youtube.com/watch?v=k7FNpZyo3xE',
+            'kliesste' => 'https://www.youtube.com/watch?v=f4nc_ie1fl0',
+            'mnoziarne' => 'https://www.youtube.com/watch?v=LjkoJ0djlow',
+            'cestovanie-so-psom' => 'https://www.youtube.com/watch?v=1aijtMzHV_8',
+            'oblecenie-pre-psa' => 'https://www.youtube.com/watch?v=LgyEQ1bxRA8',
+        ];
+        $yt = $youtubeMap[$topic->slug] ?? null;
+        $ytSlugs = array_keys($youtubeMap);
     @endphp
 
     <a href="{{ route('learn.index') }}" class="mt-4 inline-flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1.5 text-sm text-foreground hover:bg-muted">
@@ -14,13 +25,24 @@
         <p class="mt-1 text-sm text-muted-foreground">{{ $topic->summary }}</p>
     @endif
 
-    @if ($topic->thumbnail_url && ! $hideThumbnail)
+    @if ($yt && $topic->thumbnail_url)
+        <a href="{{ $yt }}" target="_blank" rel="noopener noreferrer" class="group relative mt-5 block aspect-[16/9] overflow-hidden rounded-3xl bg-muted">
+            <img src="{{ $topic->thumbnail_url }}" alt="{{ $topic->title }}" class="h-full w-full object-cover">
+            <div class="absolute inset-0 flex items-center justify-center bg-black/20 transition group-hover:bg-black/30">
+                <div class="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 shadow-lg transition group-hover:scale-110">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="black" stroke="none" class="ml-1"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                </div>
+            </div>
+        </a>
+    @endif
+
+    @if ($topic->thumbnail_url && ! in_array($topic->slug, $ytSlugs))
         <div class="mt-5 aspect-[16/9] overflow-hidden rounded-3xl bg-muted">
             <img src="{{ $topic->thumbnail_url }}" alt="{{ $topic->title }}" class="h-full w-full object-cover">
         </div>
     @endif
 
-    @if ($topic->video_url)
+    @if ($topic->video_url && ! in_array($topic->slug, $ytSlugs))
         <div class="mt-4 aspect-video overflow-hidden rounded-2xl bg-black">
             <video src="{{ $topic->video_url }}" controls class="h-full w-full"></video>
         </div>
