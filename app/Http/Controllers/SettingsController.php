@@ -44,12 +44,33 @@ class SettingsController extends Controller
 
     public function export(): JsonResponse
     {
-        $user = Auth::user()->load([
-            'dogs', 'posts', 'sentMessages', 'receivedMessages',
-            'friendshipsAsRequester', 'friendshipsAsAddressee', 'appRoles',
-        ]);
-        return response()->json($user->toArray())
-            ->header('Content-Disposition', 'attachment; filename=nuffy-export-'.now()->format('Y-m-d').'.json');
+        $user = Auth::user();
+        $uid = $user->id;
+
+        $payload = [
+            'exported_at' => now()->toISOString(),
+            'account' => ['id' => $uid, 'email' => $user->email],
+            'profile' => $user->only([
+                'display_name', 'city', 'avatar_url', 'gender', 'instagram',
+                'with_dog_photos', 'bio', 'birth_year',
+            ]),
+            'roles' => \App\Models\UserRole::where('user_id', $uid)->get(),
+            'dogs' => \App\Models\Dog::where('owner_id', $uid)->get(),
+            'posts' => \App\Models\Post::where('author_id', $uid)->get(),
+            'messages_sent' => \App\Models\Message::where('sender_id', $uid)->get(),
+            'messages_received' => \App\Models\Message::where('receiver_id', $uid)->get(),
+            'friendships' => \App\Models\Friendship::where('requester_id', $uid)
+                ->orWhere('addressee_id', $uid)->get(),
+            'sos_reports' => \App\Models\SosReport::where('reporter_id', $uid)->get(),
+            'help_reports' => \App\Models\HelpReport::where('reporter_id', $uid)->get(),
+            'learn_comments' => \App\Models\LearnComment::where('author_id', $uid)->get(),
+            'learn_likes' => \Illuminate\Support\Facades\DB::table('learn_likes')->where('user_id', $uid)->get(),
+            'place_suggestions' => \App\Models\PlaceSuggestion::where('user_id', $uid)->get(),
+            'topic_requests' => \App\Models\TopicRequest::where('user_id', $uid)->get(),
+        ];
+
+        return response()->json($payload)
+            ->header('Content-Disposition', 'attachment; filename=nuffy-moje-data-'.now()->format('Y-m-d').'.json');
     }
 
     public function deleteAccount(Request $request): RedirectResponse

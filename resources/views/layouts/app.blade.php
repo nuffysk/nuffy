@@ -171,6 +171,13 @@
         </div>
 
         <form id="nuffy-logout-form" method="POST" action="{{ route('logout') }}" class="hidden">@csrf</form>
+    @endauth
+
+    @include('partials.cookie-banner')
+    @include('partials.install-prompt')
+    @include('partials.age-gate')
+
+    @auth
 
         <script>
             function inactivityLogout() {
