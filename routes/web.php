@@ -79,6 +79,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/with-dog-photo', [ProfileController::class, 'addWithDogPhoto'])->name('profile.with-dog-photo.add');
+    Route::delete('/profile/with-dog-photo', [ProfileController::class, 'removeWithDogPhoto'])->name('profile.with-dog-photo.remove');
 
     // Dog (own — single)
     Route::get('/dog', [DogController::class, 'edit'])->name('dog.edit');

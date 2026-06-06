@@ -58,4 +58,41 @@ class ProfileController extends Controller
 
         return redirect()->route('profile.show')->with('status', 'Profil uložený.');
     }
+
+    public function addWithDogPhoto(Request $request): RedirectResponse
+    {
+        $request->validate(['photo' => ['required', 'image', 'max:5120']]);
+        $user = Auth::user();
+
+        $photos = $user->with_dog_photos ?? [];
+        if (count($photos) >= 4) {
+            return back()->with('status', 'Maximálne 4 fotky.');
+        }
+
+        $path = $request->file('photo')->store('avatars/'.$user->id, 'public');
+        $photos[] = Storage::url($path);
+        $user->with_dog_photos = $photos;
+        $user->save();
+
+        return back()->with('status', 'Fotka pridaná.');
+    }
+
+    public function removeWithDogPhoto(Request $request): RedirectResponse
+    {
+        $request->validate(['index' => ['required', 'integer', 'min:0']]);
+        $user = Auth::user();
+
+        $photos = $user->with_dog_photos ?? [];
+        $i = $request->integer('index');
+        if (isset($photos[$i])) {
+            if (str_starts_with($photos[$i], '/storage/')) {
+                Storage::disk('public')->delete(substr($photos[$i], strlen('/storage/')));
+            }
+            array_splice($photos, $i, 1);
+            $user->with_dog_photos = array_values($photos);
+            $user->save();
+        }
+
+        return back()->with('status', 'Fotka odstránená.');
+    }
 }

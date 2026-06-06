@@ -26,7 +26,7 @@ php artisan view:cache
 php artisan event:cache
 
 echo "→ Storage link"
-php artisan storage:link || true
+php artisan storage:link --force || true
 
 echo "→ Restarting queue + reloading PHP-FPM"
 php artisan queue:restart || true

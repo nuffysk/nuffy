@@ -125,18 +125,32 @@
             @for ($i = 0; $i < 4; $i++)
                 @php $url = $withDogPhotos[$i] ?? null; @endphp
                 @if ($url)
-                    <span class="aspect-square overflow-hidden rounded-xl bg-accent-foreground/10">
+                    <div class="group relative aspect-square overflow-hidden rounded-xl bg-accent-foreground/10">
                         <img src="{{ $url }}" alt="" class="h-full w-full object-cover" loading="lazy">
-                    </span>
+                        <form method="POST" action="{{ route('profile.with-dog-photo.remove') }}" class="absolute right-1 top-1">
+                            @csrf
+                            @method('DELETE')
+                            <input type="hidden" name="index" value="{{ $i }}">
+                            <button type="submit" aria-label="Odstrániť fotku" class="flex h-6 w-6 items-center justify-center rounded-full bg-black/45 text-white transition hover:bg-black/65">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                            </button>
+                        </form>
+                    </div>
                 @else
                     @php $isNext = $i === count($withDogPhotos); @endphp
-                    <a href="{{ route('profile.edit') }}" aria-label="Pridať fotku" @class([
-                        'flex aspect-square items-center justify-center rounded-xl border-2 border-dashed border-accent-foreground/40 transition',
-                        'hover:border-accent-foreground/80 hover:bg-accent-foreground/10' => $isNext,
-                        'opacity-40 pointer-events-none' => ! $isNext,
-                    ])>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-                    </a>
+                    @if ($isNext)
+                        <form method="POST" action="{{ route('profile.with-dog-photo.add') }}" enctype="multipart/form-data" class="contents">
+                            @csrf
+                            <label aria-label="Pridať fotku" class="flex aspect-square cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-accent-foreground/40 transition hover:border-accent-foreground/80 hover:bg-accent-foreground/10">
+                                <input type="file" name="photo" accept="image/*" class="hidden" onchange="this.form.submit()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                            </label>
+                        </form>
+                    @else
+                        <span class="flex aspect-square items-center justify-center rounded-xl border-2 border-dashed border-accent-foreground/40 opacity-40">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                        </span>
+                    @endif
                 @endif
             @endfor
         </div>
