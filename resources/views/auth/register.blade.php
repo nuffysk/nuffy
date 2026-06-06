@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="pt-8" x-data="{ password: '', confirm: '' }">
+    <div class="pt-8" x-data="{ password: '', confirm: '', birthYear: '', agreeTerms: {{ old('agree_terms') ? 'true' : 'false' }}, agreePrivacy: {{ old('agree_privacy') ? 'true' : 'false' }}, minAge: 16, get age() { const y = parseInt(this.birthYear, 10); return Number.isFinite(y) ? new Date().getFullYear() - y : -1; }, get tooYoung() { return this.birthYear !== '' && Number.isFinite(parseInt(this.birthYear, 10)) && this.age < this.minAge; }, get canSubmit() { return this.agreeTerms && this.agreePrivacy && this.password.length >= 8 && this.password === this.confirm && this.birthYear !== '' && !this.tooYoung; } }">
         <h1 class="font-display text-4xl">
             Pridaj sa<span class="text-accent">.</span>
         </h1>
@@ -52,14 +52,18 @@
                     id="birth_year"
                     name="birth_year"
                     type="number"
+                    inputmode="numeric"
                     min="1900"
-                    max="{{ now()->year - 16 }}"
+                    max="{{ now()->year }}"
                     value="{{ old('birth_year') }}"
                     placeholder="napr. 1995"
                     required
+                    x-model="birthYear"
                     class="block w-full rounded-xl border border-input bg-background px-4 py-3 text-base"
                 >
-                <p class="text-xs text-muted-foreground">Aplikáciu môžu používať iba osoby od 16 rokov.</p>
+                <p x-show="tooYoung" class="text-sm text-destructive" style="display: none;">
+                    Aplikáciu môžu používať iba osoby od 16 rokov.
+                </p>
                 @error('birth_year')<p class="text-sm text-destructive">{{ $message }}</p>@enderror
             </div>
 
@@ -105,14 +109,14 @@
 
             <div class="space-y-3 pt-2">
                 <label class="flex items-start gap-3 cursor-pointer">
-                    <input type="checkbox" name="agree_terms" value="1" {{ old('agree_terms') ? 'checked' : '' }} class="mt-0.5 h-4 w-4 rounded-md border-border accent-[var(--accent)] focus:ring-accent">
+                    <input type="checkbox" name="agree_terms" value="1" x-model="agreeTerms" class="mt-0.5 h-4 w-4 rounded-md border-border accent-[var(--accent)] focus:ring-accent">
                     <span class="text-sm text-foreground leading-snug">
                         Prečítal/a som si a súhlasím s
                         <a href="/terms" class="text-primary underline underline-offset-2">Podmienkami používania</a>
                     </span>
                 </label>
                 <label class="flex items-start gap-3 cursor-pointer">
-                    <input type="checkbox" name="agree_privacy" value="1" {{ old('agree_privacy') ? 'checked' : '' }} class="mt-0.5 h-4 w-4 rounded-md border-border accent-[var(--accent)] focus:ring-accent">
+                    <input type="checkbox" name="agree_privacy" value="1" x-model="agreePrivacy" class="mt-0.5 h-4 w-4 rounded-md border-border accent-[var(--accent)] focus:ring-accent">
                     <span class="text-sm text-foreground leading-snug">
                         Súhlasím so spracovaním osobných údajov podľa
                         <a href="/privacy" class="text-primary underline underline-offset-2">Zásad ochrany osobných údajov</a>
@@ -122,7 +126,7 @@
                 @error('agree_privacy')<p class="text-sm text-destructive">{{ $message }}</p>@enderror
             </div>
 
-            <button type="submit" class="inline-flex w-full items-center justify-center rounded-2xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground shadow-[var(--shadow-heart)] transition">
+            <button type="submit" x-bind:disabled="!canSubmit" class="inline-flex w-full items-center justify-center rounded-2xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground shadow-[var(--shadow-heart)] transition disabled:pointer-events-none disabled:opacity-50">
                 Vytvoriť účet
             </button>
         </form>

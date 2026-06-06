@@ -11,7 +11,7 @@
             @if (auth()->user()->isAdmin())
                 <div class="mt-4" x-show="!showForm">
                     <button type="button" @click="editing = null; title = ''; content = ''; showForm = true" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-3 text-base font-medium text-primary-foreground shadow-[var(--shadow-heart)]">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                         Pridať novinku
                     </button>
                 </div>
@@ -32,7 +32,7 @@
                     </div>
                     <div class="space-y-1">
                         <label class="text-xs font-medium text-muted-foreground">Názov</label>
-                        <input name="title" x-model="title" maxlength="140" required placeholder="Napr. Ňuffy Dog Festival" class="block w-full rounded-xl border border-input bg-background px-4 py-3 text-sm">
+                        <input name="title" x-model="title" maxlength="140" required placeholder="Napr. Ňuffy Dog Festival Bratislava" class="block w-full rounded-xl border border-input bg-background px-4 py-3 text-sm">
                     </div>
                     <div class="space-y-1">
                         <label class="text-xs font-medium text-muted-foreground">Text článku</label>
@@ -52,7 +52,7 @@
                     <a href="{{ route('novinky.show', $n) }}" class="flex w-full items-center gap-3 rounded-2xl bg-card px-[18px] py-4 shadow-[0px_4px_14px_rgba(139,94,60,0.10)] transition-transform duration-150 ease-out active:scale-[0.98]">
                         <div class="min-w-0 flex-1">
                             <h3 class="truncate font-semibold leading-snug text-foreground" style="font-size: 15px;">{{ $n->title }}</h3>
-                            <p class="mt-0.5 text-xs text-muted-foreground">{{ $n->created_at->format('d. n. Y') }}</p>
+                            <p class="mt-0.5 text-xs text-muted-foreground">{{ $n->created_at->format('j. n. Y') }}</p>
                         </div>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 text-muted-foreground"><polyline points="9 18 15 12 9 6"/></svg>
                     </a>
@@ -61,13 +61,13 @@
                         @if (auth()->user()->isAdmin())
                             <div class="absolute right-12 top-1/2 -translate-y-1/2 flex items-center gap-1">
                                 <button type="button" @click.prevent="editing = {{ $n->id }}; title = @js($n->title); content = @js($n->content); showForm = true" aria-label="Upraviť" class="rounded-full bg-background/90 p-1.5 text-muted-foreground shadow-sm hover:text-foreground">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>
                                 </button>
                                 <form method="POST" action="{{ route('novinky.destroy', $n) }}" onsubmit="return confirm('Zmazať novinku „{{ $n->title }}"?');" class="inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" aria-label="Zmazať" class="rounded-full bg-background/90 p-1.5 text-destructive shadow-sm hover:bg-destructive hover:text-destructive-foreground">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6 l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11v6"/><path d="M14 11v6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                                     </button>
                                 </form>
                             </div>

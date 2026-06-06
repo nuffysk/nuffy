@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ForumComment;
+use App\Models\ForumReport;
 use App\Models\ForumTopic;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -72,6 +73,37 @@ class WalksController extends Controller
         abort_unless($comment->author_id === Auth::id() || Auth::user()->isAdmin(), 403);
         $comment->delete();
         return back();
+    }
+
+    public function reportTopic(Request $request, ForumTopic $topic): RedirectResponse
+    {
+        return $this->report($request, 'topic', $topic->id);
+    }
+
+    public function reportComment(Request $request, ForumComment $comment): RedirectResponse
+    {
+        return $this->report($request, 'comment', $comment->id);
+    }
+
+    private function report(Request $request, string $type, int $targetId): RedirectResponse
+    {
+        $data = $request->validate([
+            'reason' => ['required', 'string', 'max:60'],
+        ]);
+
+        ForumReport::firstOrCreate(
+            [
+                'reporter_id' => Auth::id(),
+                'target_type' => $type,
+                'target_id' => $targetId,
+            ],
+            [
+                'reason' => $data['reason'],
+                'status' => 'open',
+            ]
+        );
+
+        return back()->with('status', 'Ďakujeme, nahlásenie bolo odoslané.');
     }
 
     private function buildTree($comments, $parentId = null): array

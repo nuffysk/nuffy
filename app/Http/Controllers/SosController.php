@@ -36,11 +36,17 @@ class SosController extends Controller
             'dog_name' => ['nullable', 'string', 'max:40'],
             'description' => ['required', 'string', 'min:5', 'max:1000'],
             'city' => ['nullable', 'string', 'max:60'],
-            'phone' => ['nullable', 'string', 'max:40'],
+            'phone' => ['nullable', 'string', 'max:30'],
+            'phone_consent' => ['nullable', 'boolean'],
             'instagram' => ['nullable', 'string', 'max:60'],
             'contact' => ['nullable', 'string', 'max:120'],
             'photo' => ['nullable', 'image', 'max:8192'],
         ]);
+
+        if (! empty(trim($data['phone'] ?? '')) && empty($data['phone_consent'])) {
+            return back()->withInput()->with('status', 'Pre zverejnenie telefónneho čísla musíš odsúhlasiť podmienky.');
+        }
+        unset($data['phone_consent']);
 
         $nameTrim = trim($data['dog_name'] ?? '');
         $finalName = $nameTrim !== '' ? $nameTrim : ($data['kind'] === 'found' ? 'nepoznáme' : '');

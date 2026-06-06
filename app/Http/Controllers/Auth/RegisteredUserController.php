@@ -39,8 +39,8 @@ class RegisteredUserController extends Controller
             'agree_terms' => ['accepted'],
             'agree_privacy' => ['accepted'],
         ], [
-            'birth_year.max' => 'Aplikáciu Ňuffy môžu používať iba osoby od 16 rokov.',
-            'birth_year.required' => 'Zadaj rok narodenia.',
+            'birth_year.max' => 'Aplikáciu môžu používať iba osoby od 16 rokov.',
+            'birth_year.required' => 'Zadaj svoj rok narodenia.',
             'agree_terms.accepted' => 'Pre dokončenie registrácie musíš súhlasiť s podmienkami.',
             'agree_privacy.accepted' => 'Pre dokončenie registrácie musíš súhlasiť so spracovaním osobných údajov.',
         ]);

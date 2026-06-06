@@ -14,7 +14,7 @@ class ProfileController extends Controller
     public function show(): View
     {
         $user = Auth::user();
-        $dog = $user->dogs()->first();
+        $dogs = $user->dogs()->get();
 
         $friends = User::whereIn('id', function ($q) use ($user) {
             $q->select('addressee_id')->from('friendships')
@@ -24,7 +24,7 @@ class ProfileController extends Controller
                 ->where('addressee_id', $user->id)->where('status', 'accepted');
         })->get();
 
-        return view('profile.show', compact('user', 'dog', 'friends'));
+        return view('profile.show', compact('user', 'dogs', 'friends'));
     }
 
     public function edit(): View
