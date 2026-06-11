@@ -5,7 +5,7 @@
         <section class="pt-6">
             <p class="mb-3 text-xs uppercase tracking-[0.22em] text-muted-foreground">Pre ľudí a ich psíkov</p>
             <h1 class="font-display text-5xl leading-[1.02]">
-                Nájdi psíkovi
+                <span class="text-[#795548]">Nájdi psíkovi</span>
                 <br>
                 <span class="italic text-accent">nových kamošov.</span>
             </h1>
