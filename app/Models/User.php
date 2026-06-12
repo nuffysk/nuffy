@@ -2,12 +2,18 @@
 
 namespace App\Models;
 
+use App\Mail\ResetPasswordMail;
+use App\Mail\VerifyEmailMail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\URL;
 use Orchid\Filters\Types\Like;
 use Orchid\Filters\Types\Where;
 use Orchid\Filters\Types\WhereDateStartEnd;
 use Orchid\Platform\Models\User as Authenticatable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /**
      * The attributes that are mass assignable.
@@ -25,6 +31,7 @@ class User extends Authenticatable
         'with_dog_photos',
         'bio',
         'birth_year',
+        'notification_prefs',
     ];
 
     /**
@@ -49,9 +56,48 @@ class User extends Authenticatable
         'email_verified_at'       => 'datetime',
         'with_dog_photos'         => 'array',
         'birth_year'              => 'integer',
+        'notification_prefs'      => 'array',
         'two_factor_secret'       => 'encrypted',
         'two_factor_confirmed_at' => 'datetime',
     ];
+
+    /**
+     * Whether the user wants a given e-mail notification.
+     * Defaults to true when the preference has not been set.
+     *
+     * Keys: friend_requests, friend_accepted, sos, videos
+     */
+    public function wantsNotification(string $key): bool
+    {
+        return (bool) ($this->notification_prefs[$key] ?? true);
+    }
+
+    /**
+     * Send the e-mail verification notification using the Nuffy-branded mail.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $url = URL::temporarySignedRoute(
+            'verification.verify',
+            now()->addMinutes((int) Config::get('auth.verification.expire', 1440)),
+            ['id' => $this->getKey(), 'hash' => sha1($this->getEmailForVerification())],
+        );
+
+        Mail::to($this->email)->send(new VerifyEmailMail($url));
+    }
+
+    /**
+     * Send the password reset notification using the Nuffy-branded mail.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $url = url(route('password.reset', [
+            'token' => $token,
+            'email' => $this->getEmailForPasswordReset(),
+        ], false));
+
+        Mail::to($this->email)->send(new ResetPasswordMail($url));
+    }
 
     public function hasTwoFactorEnabled(): bool
     {

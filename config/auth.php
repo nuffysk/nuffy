@@ -96,9 +96,23 @@ return [
         'users' => [
             'provider' => 'users',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
-            'expire' => 60,
+            'expire' => 1440, // 24 hours — matches the "Odkaz je platný 24 hodín" e-mail copy
             'throttle' => 60,
         ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Email Verification Link Expiration
+    |--------------------------------------------------------------------------
+    |
+    | Number of minutes a verification link stays valid. 24 hours to match the
+    | "Odkaz platí 24 hodín" copy in the verification e-mail.
+    |
+    */
+
+    'verification' => [
+        'expire' => 1440,
     ],
 
     /*

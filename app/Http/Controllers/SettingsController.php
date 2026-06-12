@@ -2,16 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AccountDeletionRequestMail;
+use App\Mail\DataExportReadyMail;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\URL;
 use Illuminate\View\View;
 
 class SettingsController extends Controller
 {
+    /** Notification preference keys that map to the toggles on the settings page. */
+    private const NOTIFICATION_KEYS = ['friend_requests', 'friend_accepted', 'sos', 'videos'];
+
     public function index(): View { return view('settings.index'); }
     public function account(): View { return view('settings.account'); }
     public function emailForm(): View { return view('settings.email'); }
@@ -29,12 +36,15 @@ class SettingsController extends Controller
         $user->email = $data['email'];
         $user->email_verified_at = null;
         $user->save();
-        return back()->with('status', 'Email zmenený.');
+        $user->sendEmailVerificationNotification();
+
+        return back()->with('status', 'Email zmenený. Over si novú adresu cez odkaz, ktorý sme ti poslali.');
     }
 
     public function sendPasswordReset(Request $request): RedirectResponse
     {
         $status = Password::sendResetLink(['email' => Auth::user()->email]);
+
         return back()->with('status',
             $status === Password::ResetLinkSent
                 ? 'Link na zmenu hesla sme poslali na tvoj email.'
@@ -42,9 +52,54 @@ class SettingsController extends Controller
         );
     }
 
+    /**
+     * Save which e-mail notifications the user wants to receive.
+     */
+    public function updateNotifications(Request $request): RedirectResponse
+    {
+        $prefs = [];
+        foreach (self::NOTIFICATION_KEYS as $key) {
+            $prefs[$key] = $request->boolean($key);
+        }
+
+        $user = Auth::user();
+        $user->notification_prefs = $prefs;
+        $user->save();
+
+        return back()->with('status', 'Notifikácie uložené.');
+    }
+
+    /**
+     * Web GDPR export — downloads the JSON immediately AND e-mails the user a
+     * 24-hour link to the same export (per the design).
+     */
     public function export(): JsonResponse
     {
         $user = Auth::user();
+
+        $url = URL::temporarySignedRoute(
+            'settings.export.download',
+            now()->addHours(24),
+            ['user' => $user->id],
+        );
+        Mail::to($user->email)->send(new DataExportReadyMail($url));
+
+        return $this->exportResponse($user);
+    }
+
+    /**
+     * Signed download link sent by e-mail. Valid for 24 hours.
+     */
+    public function downloadExport(User $user): JsonResponse
+    {
+        return $this->exportResponse($user);
+    }
+
+    /**
+     * Build the JSON export payload + download response for a user.
+     */
+    private function exportResponse(User $user): JsonResponse
+    {
         $uid = $user->id;
 
         $payload = [
@@ -73,14 +128,48 @@ class SettingsController extends Controller
             ->header('Content-Disposition', 'attachment; filename=nuffy-moje-data-'.now()->format('Y-m-d').'.json');
     }
 
+    /**
+     * Account deletion is now confirmed by e-mail: validate the password, then
+     * send a signed 24-hour confirmation link instead of deleting immediately.
+     */
     public function deleteAccount(Request $request): RedirectResponse
     {
         $request->validate(['password' => ['required', 'current_password']]);
+
         $user = Auth::user();
-        Auth::logout();
+        $url = URL::temporarySignedRoute(
+            'settings.account.delete.confirm',
+            now()->addHours(24),
+            ['user' => $user->id],
+        );
+        Mail::to($user->email)->send(new AccountDeletionRequestMail($url));
+
+        return back()->with('status', 'Poslali sme ti potvrdzovací email. Účet vymažeme až po kliknutí na odkaz.');
+    }
+
+    /**
+     * Confirmation page reached from the deletion e-mail (signed, no side effects).
+     */
+    public function confirmDeleteShow(User $user): View
+    {
+        return view('settings.confirm-delete', ['user' => $user]);
+    }
+
+    /**
+     * Perform the actual, irreversible account deletion (signed POST).
+     */
+    public function confirmDeletePerform(Request $request, User $user): RedirectResponse
+    {
+        $wasCurrentUser = Auth::id() === $user->id;
+
         $user->delete();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect()->route('home')->with('status', 'Účet bol zmazaný.');
+
+        if ($wasCurrentUser) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
+
+        return redirect()->route('home')->with('status', 'Účet bol natrvalo vymazaný.');
     }
 }

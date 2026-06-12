@@ -68,6 +68,17 @@ Route::get('/walks/{topic}', [WalksController::class, 'show'])->name('walks.show
 Route::get('/sos', [SosController::class, 'index'])->name('sos.index');
 Route::get('/sos/help', [SosController::class, 'help'])->name('sos.help');
 
+// Signed links sent by e-mail (GDPR export download + account-deletion confirm).
+// Authorised by the temporary signature, so they work straight from the inbox.
+Route::middleware('signed')->group(function () {
+    Route::get('/settings/export/download/{user}', [SettingsController::class, 'downloadExport'])
+        ->name('settings.export.download');
+    Route::get('/settings/account/confirm-delete/{user}', [SettingsController::class, 'confirmDeleteShow'])
+        ->name('settings.account.delete.confirm');
+    Route::post('/settings/account/confirm-delete/{user}', [SettingsController::class, 'confirmDeletePerform'])
+        ->name('settings.account.delete.perform');
+});
+
 Route::middleware('auth')->group(function () {
     Route::post('/sos', [SosController::class, 'store'])->name('sos.store');
     // Learn interactivity
@@ -95,6 +106,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/settings/password', [SettingsController::class, 'passwordForm'])->name('settings.password');
     Route::post('/settings/password', [SettingsController::class, 'sendPasswordReset'])->name('settings.password.send');
     Route::get('/settings/notifications', [SettingsController::class, 'notifications'])->name('settings.notifications');
+    Route::post('/settings/notifications', [SettingsController::class, 'updateNotifications'])->name('settings.notifications.update');
     Route::get('/settings/blocked', [SettingsController::class, 'blocked'])->name('settings.blocked');
     Route::get('/settings/two-factor', [\App\Http\Controllers\Auth\TwoFactorController::class, 'show'])->name('settings.two-factor');
     Route::post('/settings/two-factor/enable', [\App\Http\Controllers\Auth\TwoFactorController::class, 'enable'])->name('settings.two-factor.enable');
