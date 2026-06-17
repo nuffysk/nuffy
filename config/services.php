@@ -41,4 +41,9 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'cookiebot' => [
+        // Domain Group ID from the Cookiebot dashboard. Banner renders only when set.
+        'cbid' => env('COOKIEBOT_CBID'),
+    ],
+
 ];

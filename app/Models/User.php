@@ -28,6 +28,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'city',
         'avatar_url',
         'gender',
+        'instagram',
         'with_dog_photos',
         'bio',
         'birth_year',
@@ -166,10 +167,12 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $allowedFilters = [
            'id'         => Where::class,
-           'name'       => Like::class,
-           'email'      => Like::class,
-           'updated_at' => WhereDateStartEnd::class,
-           'created_at' => WhereDateStartEnd::class,
+           'name'         => Like::class,
+           'email'        => Like::class,
+           'display_name' => Like::class,
+           'city'         => Like::class,
+           'updated_at'   => WhereDateStartEnd::class,
+           'created_at'   => WhereDateStartEnd::class,
     ];
 
     /**
@@ -181,6 +184,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'id',
         'name',
         'email',
+        'display_name',
+        'city',
         'updated_at',
         'created_at',
     ];

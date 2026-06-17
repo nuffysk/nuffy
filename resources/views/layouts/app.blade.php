@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    {{-- Cookiebot — must load first so consent is set before other scripts --}}
+    @include('partials.cookiebot')
+
     <title>{{ $title ?? config('app.name', 'Ňuffy') }}</title>
 
     {{-- PWA --}}
@@ -173,7 +176,7 @@
         <form id="nuffy-logout-form" method="POST" action="{{ route('logout') }}" class="hidden">@csrf</form>
     @endauth
 
-    @include('partials.cookie-banner')
+    {{-- Cookie consent is handled by Cookiebot (see partials/cookiebot in <head>) --}}
     @include('partials.install-prompt')
     @include('partials.age-gate')
 

@@ -32,7 +32,10 @@
             <a href="{{ route('friends.index') }}" class="mt-3 inline-block text-xs text-muted-foreground hover:text-accent">
                 {{ $friendsCount }} {{ $friendsLabel }}
             </a>
-            <div class="mt-3">
+            <div class="mt-3 flex flex-wrap gap-2">
+                <a href="{{ route('profile.edit') }}" class="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground shadow-[var(--shadow-heart)] transition hover:bg-primary/90">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Upraviť profil
+                </a>
                 <a href="{{ route('search') }}" class="inline-flex items-center gap-1.5 rounded-full bg-[var(--heart-soft)] px-3 py-1.5 text-xs font-medium text-accent transition hover:bg-accent hover:text-accent-foreground">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg> Pridať kamošov
                 </a>

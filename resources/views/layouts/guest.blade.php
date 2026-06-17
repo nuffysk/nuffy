@@ -5,6 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
+        {{-- Cookiebot — must load first so consent is set before other scripts --}}
+        @include('partials.cookiebot')
+
         <title>{{ config('app.name', 'Laravel') }}</title>
 
         <!-- Fonts -->

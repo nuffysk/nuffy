@@ -46,6 +46,16 @@ class UserListLayout extends Table
                         'user' => $user->id,
                     ])),
 
+            TD::make('display_name', 'Zobrazené meno')
+                ->sort()
+                ->filter(Input::make())
+                ->render(fn (User $user) => e($user->display_name ?? '—')),
+
+            TD::make('city', 'Mesto')
+                ->sort()
+                ->filter(Input::make())
+                ->render(fn (User $user) => e($user->city ?? '—')),
+
             TD::make('created_at', __('Created'))
                 ->usingComponent(DateTimeSplit::class)
                 ->align(TD::ALIGN_RIGHT)
