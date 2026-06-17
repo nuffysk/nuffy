@@ -8,14 +8,23 @@ use Illuminate\Support\Facades\Mail;
 
 class MailTest extends Command
 {
-    protected $signature = 'nuffy:mail-test {email : Kam poslať testovací e-mail}';
+    protected $signature = 'nuffy:mail-test {email : Kam poslať testovací e-mail}
+                            {--queue : Odoslať cez frontu (otestuje queue worker) namiesto priameho odoslania}';
 
-    protected $description = 'Pošle testovací Nuffy e-mail (overenie SMTP nastavenia)';
+    protected $description = 'Pošle testovací Nuffy e-mail (overenie SMTP nastavenia / queue workera)';
 
     public function handle(): int
     {
-        $email = $this->argument('email');
+        $email = trim($this->argument('email'));
         $mailer = config('mail.default');
+
+        if ($this->option('queue')) {
+            // Zaradí mail do fronty — odošle ho až bežiaci queue worker.
+            Mail::to($email)->queue(new SectionActivityMail('post', 'Test fronty', route('home')));
+            $this->info("Mail pre {$email} zaradený do fronty. Ak beží worker, dorazí o pár sekúnd.");
+
+            return self::SUCCESS;
+        }
 
         $this->info("Posielam testovací e-mail na {$email} cez mailer [{$mailer}]...");
 
