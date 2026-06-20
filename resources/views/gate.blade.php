@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    {{-- Cookiebot — needed on the gate too, since it's the first page visitors (and the Cookiebot crawler) see during closed beta --}}
+    @include('partials.cookiebot')
+
     <title>Ňuffy · Zatvorené testovanie</title>
 
     <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
