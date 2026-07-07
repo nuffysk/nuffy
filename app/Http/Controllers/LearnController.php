@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ForumReport;
 use App\Models\LearnComment;
 use App\Models\LearnTopic;
 use App\Models\TopicRequest;
@@ -59,6 +60,25 @@ class LearnController extends Controller
             'body' => trim($data['body']),
         ]);
         return back();
+    }
+
+    public function reportComment(Request $request, LearnComment $comment): RedirectResponse
+    {
+        $data = $request->validate(['reason' => ['required', 'string', 'max:60']]);
+
+        ForumReport::firstOrCreate(
+            [
+                'reporter_id' => Auth::id(),
+                'target_type' => 'learn_comment',
+                'target_id' => $comment->id,
+            ],
+            [
+                'reason' => $data['reason'],
+                'status' => 'open',
+            ]
+        );
+
+        return back()->with('status', 'Ďakujeme, nahlásenie bolo odoslané.');
     }
 
     public function storeSuggestion(Request $request): RedirectResponse

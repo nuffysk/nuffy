@@ -90,14 +90,14 @@
             <h2 class="font-display text-xl">Pridaj psíka</h2>
         </div>
         @if ($dogs->isEmpty())
-            <a href="{{ route('dog.edit') }}" class="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-card/50 px-4 py-6 text-sm text-muted-foreground transition hover:border-accent hover:text-accent">
+            <a href="{{ route('dog.create') }}" class="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-card/50 px-4 py-6 text-sm text-muted-foreground transition hover:border-accent hover:text-accent">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Vytvoriť profil psíka
             </a>
         @else
             <div class="space-y-2">
                 @foreach ($dogs as $d)
                     @php $photo = $d->photos[0] ?? $d->photo_url ?? null; @endphp
-                    <a href="{{ route('dog.edit') }}" class="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-[var(--shadow-soft)] transition hover:border-accent/60">
+                    <a href="{{ route('dog.edit', $d) }}" class="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-[var(--shadow-soft)] transition hover:border-accent/60">
                         <span class="flex min-w-0 items-center gap-3">
                             <span class="h-12 w-12 shrink-0 overflow-hidden rounded-2xl bg-muted">
                                 @if ($photo)
@@ -116,6 +116,10 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground shrink-0"><polyline points="9 18 15 12 9 6"/></svg>
                     </a>
                 @endforeach
+
+                <a href="{{ route('dog.create') }}" class="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-card/50 px-4 py-4 text-sm text-muted-foreground transition hover:border-accent hover:text-accent">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Pridať ďalšieho psíka
+                </a>
             </div>
         @endif
     </section>

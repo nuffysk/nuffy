@@ -71,6 +71,8 @@ Route::get('/sos/help', [SosController::class, 'help'])->name('sos.help');
 // Signed links sent by e-mail (GDPR export download + account-deletion confirm).
 // Authorised by the temporary signature, so they work straight from the inbox.
 Route::middleware('signed')->group(function () {
+    Route::get('/odhlasit/{user}/{pref}', \App\Http\Controllers\UnsubscribeController::class)
+        ->name('notifications.unsubscribe');
     Route::get('/settings/export/download/{user}', [SettingsController::class, 'downloadExport'])
         ->name('settings.export.download');
     Route::get('/settings/account/confirm-delete/{user}', [SettingsController::class, 'confirmDeleteShow'])
@@ -79,11 +81,12 @@ Route::middleware('signed')->group(function () {
         ->name('settings.account.delete.perform');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/sos', [SosController::class, 'store'])->name('sos.store');
     // Learn interactivity
     Route::post('/learn/{topic:slug}/like', [LearnController::class, 'toggleLike'])->name('learn.like');
     Route::post('/learn/{topic:slug}/comments', [LearnController::class, 'storeComment'])->name('learn.comments.store');
+    Route::post('/learn/comments/{comment}/report', [LearnController::class, 'reportComment'])->name('learn.comments.report');
     Route::post('/learn/suggest', [LearnController::class, 'storeSuggestion'])->name('learn.suggest');
 
     // Profile (own)
@@ -94,9 +97,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile/with-dog-photo', [ProfileController::class, 'removeWithDogPhoto'])->name('profile.with-dog-photo.remove');
 
     // Dog (own — single)
-    Route::get('/dog', [DogController::class, 'edit'])->name('dog.edit');
-    Route::post('/dog', [DogController::class, 'save'])->name('dog.save');
-    Route::delete('/dog', [DogController::class, 'destroy'])->name('dog.destroy');
+    Route::get('/dog/new', [DogController::class, 'create'])->name('dog.create');
+    Route::post('/dog', [DogController::class, 'store'])->name('dog.store');
+    Route::get('/dog/{dog}/edit', [DogController::class, 'edit'])->name('dog.edit');
+    Route::patch('/dog/{dog}', [DogController::class, 'update'])->name('dog.update');
+    Route::delete('/dog/{dog}/photo', [DogController::class, 'removePhoto'])->name('dog.photo.destroy');
+    Route::delete('/dog/{dog}', [DogController::class, 'destroy'])->name('dog.destroy');
 
     // Settings
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
@@ -132,6 +138,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/friends', [FriendsController::class, 'index'])->name('friends.index');
     Route::post('/friends/{friendship}/{action}', [FriendsController::class, 'respond'])
         ->whereIn('action', ['accept', 'decline'])->name('friends.respond');
+    Route::delete('/friends/{friendship}', [FriendsController::class, 'unfriend'])->name('friends.unfriend');
 
     // Place suggestion
     Route::post('/places/suggest', [PlacesController::class, 'suggest'])->name('places.suggest');

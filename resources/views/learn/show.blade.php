@@ -14,6 +14,12 @@
         ];
         $yt = $youtubeMap[$topic->slug] ?? null;
         $ytSlugs = array_keys($youtubeMap);
+
+        // Extract the 11-char YouTube video id from a watch/share URL.
+        $ytId = null;
+        if ($yt && preg_match('~(?:v=|youtu\.be/|embed/)([A-Za-z0-9_-]{11})~', $yt, $m)) {
+            $ytId = $m[1];
+        }
     @endphp
 
     <a href="{{ route('learn.index') }}" class="mt-4 inline-flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1.5 text-sm text-foreground hover:bg-muted">
@@ -25,14 +31,38 @@
         <p class="mt-1 text-sm text-muted-foreground">{{ $topic->summary }}</p>
     @endif
 
-    @if ($yt && $topic->thumbnail_url)
-        <a href="{{ $yt }}" target="_blank" rel="noopener noreferrer" class="group relative mt-5 block aspect-[16/9] overflow-hidden rounded-3xl bg-muted">
-            <img src="{{ $topic->thumbnail_url }}" alt="{{ $topic->title }}" class="h-full w-full object-cover">
-            <div class="absolute inset-0 flex items-center justify-center bg-black/20 transition group-hover:bg-black/30">
-                <div class="flex h-16 w-16 items-center justify-center rounded-full bg-white/90 shadow-lg transition group-hover:scale-110">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="black" stroke="none" class="ml-1"><polygon points="6 3 20 12 6 21 6 3"/></svg>
-                </div>
-            </div>
+    @if ($ytId)
+        {{-- Click-to-load YouTube "facade": loads the real player only after the
+             user clicks play. Slick, and avoids loading YouTube (cookies) before
+             consent — the iframe is user-initiated so Cookiebot won't block it. --}}
+        @php $ytThumb = $topic->thumbnail_url ?: 'https://i.ytimg.com/vi/'.$ytId.'/hqdefault.jpg'; @endphp
+        <div x-data="{ playing: false }" class="relative mt-5 aspect-video overflow-hidden rounded-3xl bg-black shadow-[var(--shadow-soft)]">
+            <button type="button" x-show="!playing" @click="playing = true"
+                class="group absolute inset-0 h-full w-full cursor-pointer" aria-label="Prehrať video">
+                <img src="{{ $ytThumb }}" alt="{{ $topic->title }}" class="h-full w-full object-cover">
+                <span class="absolute inset-0 flex items-center justify-center bg-black/25 transition group-hover:bg-black/40">
+                    <span class="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 shadow-xl transition group-hover:scale-110">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="#C4724A" stroke="none" class="ml-1"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                    </span>
+                </span>
+            </button>
+            <template x-if="playing">
+                <iframe
+                    src="https://www.youtube-nocookie.com/embed/{{ $ytId }}?autoplay=1&rel=0"
+                    title="{{ $topic->title }}"
+                    class="absolute inset-0 h-full w-full"
+                    data-cookieconsent="ignore"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    allowfullscreen></iframe>
+            </template>
+        </div>
+    @elseif ($yt)
+        {{-- Fallback: no parseable id → link out to YouTube --}}
+        <a href="{{ $yt }}" target="_blank" rel="noopener noreferrer" class="mt-5 inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+            Prehrať video na YouTube
         </a>
     @endif
 
@@ -104,6 +134,27 @@
                         </div>
                         <p class="text-xs font-medium">{{ $c->author?->display_name ?? $c->author?->name ?? 'Niekto' }}</p>
                         <span class="text-xs text-muted-foreground">· {{ $c->created_at->format('d.m.Y') }}</span>
+                        @auth
+                            @if ($c->author_id !== auth()->id())
+                                <div x-data="{ reportOpen: false }" class="ml-auto">
+                                    <button type="button" @click="reportOpen = !reportOpen" class="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>
+                                        Nahlásiť
+                                    </button>
+                                    <form x-show="reportOpen" x-transition method="POST" action="{{ route('learn.comments.report', $c) }}" class="mt-2 space-y-2" style="display:none;">
+                                        @csrf
+                                        <select name="reason" required class="block w-full rounded-xl border border-input bg-background px-3 py-2 text-xs">
+                                            <option value="">— Dôvod —</option>
+                                            <option value="spam">Spam / reklama</option>
+                                            <option value="urazlivy">Urážlivý / vulgárny</option>
+                                            <option value="tyranie">Týranie zvierat</option>
+                                            <option value="iny">Iný dôvod</option>
+                                        </select>
+                                        <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground">Nahlásiť</button>
+                                    </form>
+                                </div>
+                            @endif
+                        @endauth
                     </div>
                     <p class="mt-2 text-sm">{{ $c->body }}</p>
                 </li>

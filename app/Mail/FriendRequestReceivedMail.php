@@ -13,7 +13,7 @@ class FriendRequestReceivedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public string $actionUrl) {}
+    public function __construct(public string $actionUrl, public ?string $unsubscribeUrl = null) {}
 
     public function envelope(): Envelope
     {
@@ -22,6 +22,9 @@ class FriendRequestReceivedMail extends Mailable implements ShouldQueue
 
     public function content(): Content
     {
-        return new Content(view: 'emails.friend-received', with: ['actionUrl' => $this->actionUrl]);
+        return new Content(view: 'emails.friend-received', with: [
+            'actionUrl' => $this->actionUrl,
+            'unsubscribeUrl' => $this->unsubscribeUrl,
+        ]);
     }
 }

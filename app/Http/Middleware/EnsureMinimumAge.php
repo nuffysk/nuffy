@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnsureMinimumAge
 {
-    private const MIN_AGE = 16;
+    private const MIN_AGE = 18;
 
     /**
      * Mirrors paw AgeGate: users whose birth year implies an age below MIN_AGE

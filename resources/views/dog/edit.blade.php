@@ -38,8 +38,9 @@
             <p class="mt-2 text-sm text-accent">{{ session('status') }}</p>
         @endif
 
-        <form method="POST" action="{{ route('dog.save') }}" enctype="multipart/form-data" class="mt-4 space-y-5">
+        <form method="POST" action="{{ $dog->exists ? route('dog.update', $dog) : route('dog.store') }}" enctype="multipart/form-data" class="mt-4 space-y-5">
             @csrf
+            @if ($dog->exists) @method('PATCH') @endif
             <input type="hidden" name="birth_date" :value="birthDate">
 
             {{-- Meno psíka --}}
@@ -67,26 +68,48 @@
             </section>
 
             {{-- Fotky --}}
-            <section class="rounded-2xl border border-border bg-[var(--heart-medium)] p-4 shadow-[var(--shadow-soft)]">
+            <section class="rounded-2xl border border-border bg-[var(--heart-medium)] p-4 shadow-[var(--shadow-soft)]" x-data="{
+                previews: [],
+                tooBig: false,
+                pick(e) {
+                    this.previews = [];
+                    this.tooBig = false;
+                    for (const f of e.target.files) {
+                        if (f.size > 5 * 1024 * 1024) this.tooBig = true;
+                        this.previews.push(URL.createObjectURL(f));
+                    }
+                }
+            }">
                 <span class="text-xs uppercase tracking-wider text-muted-foreground">Fotky</span>
                 <div class="mt-2 grid grid-cols-4 gap-2">
-                    @for ($i = 0; $i < 4; $i++)
-                        @php $photo = $existingPhotos[$i] ?? null; @endphp
-                        @if ($photo)
-                            <div class="relative aspect-square overflow-hidden rounded-xl bg-muted">
-                                <img src="{{ $photo }}" alt="" class="h-full w-full object-cover">
-                            </div>
-                        @else
-                            <label class="flex aspect-square cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-border text-muted-foreground transition hover:border-accent hover:text-accent">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-                                <input type="file" name="photos[]" accept="image/*" multiple class="hidden">
-                            </label>
-                        @endif
-                    @endfor
+                    @foreach ($existingPhotos as $i => $photo)
+                        <div class="relative aspect-square overflow-hidden rounded-xl bg-muted">
+                            <img src="{{ $photo }}" alt="" class="h-full w-full object-cover">
+                            @if ($dog->exists)
+                                <button type="submit" form="dog-photo-del-{{ $i }}" aria-label="Odstrániť fotku"
+                                    onclick="return confirm('Odstrániť túto fotku?');"
+                                    class="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-white transition hover:bg-black/70">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                                </button>
+                            @endif
+                        </div>
+                    @endforeach
+                    <template x-for="src in previews" :key="src">
+                        <div class="relative aspect-square overflow-hidden rounded-xl bg-muted ring-2 ring-accent">
+                            <img :src="src" alt="Náhľad" class="h-full w-full object-cover">
+                        </div>
+                    </template>
+                    @if (count($existingPhotos) < 4)
+                        <label class="flex aspect-square cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-border text-muted-foreground transition hover:border-accent hover:text-accent">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                            <input type="file" name="photos[]" accept="image/*" multiple class="hidden" x-on:change="pick($event)">
+                        </label>
+                    @endif
                 </div>
+                <p x-show="tooBig" class="mt-1 text-sm text-destructive" style="display:none;">Niektorá fotka je väčšia ako 5 MB — vyber menšiu.</p>
                 @error('photos.*')<p class="mt-1 text-sm text-destructive">{{ $message }}</p>@enderror
                 <p class="mt-3 text-[11px] leading-relaxed text-muted-foreground">
-                    Nahraním fotiek súhlasíš so spracovaním osobných údajov a zverejnením fotografií v rámci aplikácie.
+                    Max 4 fotky, každá do 5 MB. Nahraním fotiek súhlasíš so spracovaním osobných údajov a zverejnením fotografií v rámci aplikácie.
                 </p>
             </section>
 
@@ -224,8 +247,19 @@
             </div>
         </form>
 
+        {{-- Mazacie formuláre pre jednotlivé fotky (mimo hlavného formulára, aby sa formuláre nevnárali) --}}
         @if ($dog->exists)
-            <form method="POST" action="{{ route('dog.destroy') }}" class="mt-3" onsubmit="return confirm('Naozaj odstrániť psíka?');">
+            @foreach ($existingPhotos as $i => $photo)
+                <form id="dog-photo-del-{{ $i }}" method="POST" action="{{ route('dog.photo.destroy', $dog) }}" class="hidden">
+                    @csrf
+                    @method('DELETE')
+                    <input type="hidden" name="index" value="{{ $i }}">
+                </form>
+            @endforeach
+        @endif
+
+        @if ($dog->exists)
+            <form method="POST" action="{{ route('dog.destroy', $dog) }}" class="mt-3" onsubmit="return confirm('Naozaj odstrániť psíka?');">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="inline-flex w-full items-center justify-center rounded-2xl px-6 py-3 text-base font-medium text-destructive transition hover:bg-muted">Odstrániť psíka</button>

@@ -17,6 +17,6 @@
 
     <x-emails.button :url="$actionUrl" variant="primary">🐾&nbsp; Ísť na Nuffy.sk</x-emails.button>
 
-    <x-emails.pref-footer :reason="'pre sekciu '.$section" />
+    <x-emails.pref-footer :reason="'pre sekciu '.$section" :unsubscribeUrl="$unsubscribeUrl ?? null" />
 
 </x-emails.layout>

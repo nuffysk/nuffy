@@ -63,6 +63,17 @@ class PlatformProvider extends OrchidServiceProvider
                 ->permission('platform.systems.users')
                 ->title(__('Access Controls')),
 
+            Menu::make('Nahlásený obsah')
+                ->icon('bs.flag')
+                ->route('platform.content-reports')
+                ->permission('platform.systems.users')
+                ->badge(fn () => \App\Models\ForumReport::where('status', 'open')->count()),
+
+            Menu::make('Vymazané účty')
+                ->icon('bs.trash')
+                ->route('platform.deletion-logs')
+                ->permission('platform.systems.users'),
+
             Menu::make(__('Roles'))
                 ->icon('bs.shield')
                 ->route('platform.systems.roles')

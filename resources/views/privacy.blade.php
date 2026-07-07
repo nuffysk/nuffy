@@ -338,8 +338,8 @@
             <p>Tím moderátorov nuffy.sk má prístup k príspevkom, nahláseniam a v odôvodnených prípadoch k ďalším informáciám o aktivite používateľa v rozsahu nevyhnutnom na rozhodnutie o nahlásenom obsahu. Moderátori sú viazaní mlčanlivosťou a internými smernicami.</p>
 
             <h2 class="font-display text-lg font-semibold mt-6">12. Ochrana maloletých osôb</h2>
-            <p>Platforma nuffy.sk nie je určená pre deti mladšie ako 16 rokov. Registráciou používateľ potvrdzuje, že dovŕšil 16 rokov veku. Dátum narodenia zadaný pri registrácii slúži okrem iného na overenie tohto minimálneho veku.</p>
-            <p>Ak zistíme, že osobné údaje patriace dieťaťu mladšiemu ako 16 rokov boli zhromaždené bez overiteľného súhlasu zákonného zástupcu, takéto údaje bezodkladne vymažeme. Ak máte podozrenie, že na Platforme je registrované dieťa mladšie ako 16 rokov, kontaktujte nás na nuffy@nuffy.sk.</p>
+            <p>Platforma nuffy.sk nie je určená pre osoby mladšie ako 18 rokov. Registráciou používateľ potvrdzuje, že dovŕšil 18 rokov veku. Dátum narodenia zadaný pri registrácii slúži okrem iného na overenie tohto minimálneho veku.</p>
+            <p>Ak zistíme, že osobné údaje patriace osobe mladšej ako 18 rokov boli zhromaždené bez overiteľného súhlasu zákonného zástupcu, takéto údaje bezodkladne vymažeme. Ak máte podozrenie, že na Platforme je registrovaná osoba mladšia ako 18 rokov, kontaktujte nás na nuffy@nuffy.sk.</p>
 
             <h2 class="font-display text-lg font-semibold mt-6">13. Zmeny týchto Zásad ochrany osobných údajov</h2>
             <p>Tieto Zásady môžeme priebežne aktualizovať v súvislosti so zmenami Platformy, zákonných požiadaviek alebo našich interných postupov. O každej podstatnej zmene vás budeme informovať:</p>

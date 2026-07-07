@@ -30,7 +30,7 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $maxYear = (int) now()->year - 16;
+        $maxYear = (int) now()->year - 18;
         $request->validate([
             'name' => ['required', 'string', 'max:60'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
@@ -39,7 +39,7 @@ class RegisteredUserController extends Controller
             'agree_terms' => ['accepted'],
             'agree_privacy' => ['accepted'],
         ], [
-            'birth_year.max' => 'Aplikáciu môžu používať iba osoby od 16 rokov.',
+            'birth_year.max' => 'Aplikáciu môžu používať iba osoby od 18 rokov.',
             'birth_year.required' => 'Zadaj svoj rok narodenia.',
             'agree_terms.accepted' => 'Pre dokončenie registrácie musíš súhlasiť s podmienkami.',
             'agree_privacy.accepted' => 'Pre dokončenie registrácie musíš súhlasiť so spracovaním osobných údajov.',
@@ -57,6 +57,7 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('home', absolute: false));
+        // Do not let the user into the app until they verify their e-mail.
+        return redirect(route('verification.notice'));
     }
 }

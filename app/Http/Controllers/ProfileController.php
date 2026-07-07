@@ -43,7 +43,18 @@ class ProfileController extends Controller
             'bio' => ['nullable', 'string', 'max:500'],
             'instagram' => ['nullable', 'string', 'max:60'],
             'avatar' => ['nullable', 'image', 'max:5120'],
+            'remove_avatar' => ['nullable', 'boolean'],
+        ], [
+            'avatar.max' => 'Fotka môže mať najviac 5 MB.',
         ]);
+
+        // Remove the current avatar (revert to the default placeholder).
+        if ($request->boolean('remove_avatar') && ! $request->hasFile('avatar')) {
+            if ($user->avatar_url && str_starts_with($user->avatar_url, '/storage/')) {
+                Storage::disk('public')->delete(substr($user->avatar_url, strlen('/storage/')));
+            }
+            $data['avatar_url'] = null;
+        }
 
         if ($request->hasFile('avatar')) {
             if ($user->avatar_url && str_starts_with($user->avatar_url, '/storage/')) {
@@ -53,7 +64,7 @@ class ProfileController extends Controller
             $data['avatar_url'] = Storage::url($path);
         }
 
-        unset($data['avatar']);
+        unset($data['avatar'], $data['remove_avatar']);
         $user->update($data);
 
         return redirect()->route('profile.show')->with('status', 'Profil uložený.');

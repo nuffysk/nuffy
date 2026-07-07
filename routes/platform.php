@@ -92,6 +92,14 @@ Route::screen('roles', RoleListScreen::class)
         ->parent('platform.index')
         ->push(__('Roles'), route('platform.systems.roles')));
 
+// Platform > Moderation > Content reports
+Route::screen('content-reports', \App\Orchid\Screens\ContentReport\ContentReportListScreen::class)
+    ->name('platform.content-reports');
+
+// Platform > GDPR > Deletion logs
+Route::screen('deletion-logs', \App\Orchid\Screens\DeletionLog\DeletionLogListScreen::class)
+    ->name('platform.deletion-logs');
+
 // Platform > Content > SOS
 Route::screen('sos', SosReportListScreen::class)->name('platform.sos');
 Route::screen('sos/{report}/edit', SosReportEditScreen::class)->name('platform.sos.edit');

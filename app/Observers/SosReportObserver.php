@@ -4,7 +4,9 @@ namespace App\Observers;
 
 use App\Mail\SectionActivityMail;
 use App\Models\SosReport;
+use App\Models\User;
 use App\Support\NotifyUsers;
+use App\Support\Unsubscribe;
 
 class SosReportObserver
 {
@@ -15,7 +17,12 @@ class SosReportObserver
     {
         NotifyUsers::broadcast(
             'sos',
-            new SectionActivityMail('post', 'SOS linka', route('sos.index')),
+            fn (User $u) => new SectionActivityMail(
+                'post',
+                'SOS linka',
+                route('sos.index'),
+                Unsubscribe::url($u->id, 'sos'),
+            ),
             excludeId: $report->reporter_id,
         );
     }

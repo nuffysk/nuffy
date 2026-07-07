@@ -40,7 +40,12 @@ class SosController extends Controller
             'phone_consent' => ['nullable', 'boolean'],
             'instagram' => ['nullable', 'string', 'max:60'],
             'contact' => ['nullable', 'string', 'max:120'],
-            'photo' => ['nullable', 'image', 'max:8192'],
+            'photo' => ['nullable', 'image', 'max:5120'],
+        ], [
+            'description.required' => 'Vyplň prosím popis.',
+            'description.min' => 'Popis musí mať aspoň 5 znakov.',
+            'photo.max' => 'Fotka môže mať najviac 5 MB.',
+            'photo.image' => 'Súbor musí byť obrázok (JPG, PNG).',
         ]);
 
         if (! empty(trim($data['phone'] ?? '')) && empty($data['phone_consent'])) {

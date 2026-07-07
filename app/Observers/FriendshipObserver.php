@@ -6,6 +6,7 @@ use App\Mail\FriendRequestAcceptedMail;
 use App\Mail\FriendRequestReceivedMail;
 use App\Models\Friendship;
 use App\Models\User;
+use App\Support\Unsubscribe;
 use Illuminate\Support\Facades\Mail;
 
 class FriendshipObserver
@@ -22,7 +23,10 @@ class FriendshipObserver
         $addressee = User::find($friendship->addressee_id);
 
         if ($addressee && $addressee->email && $addressee->wantsNotification('friend_requests')) {
-            Mail::to($addressee->email)->send(new FriendRequestReceivedMail(route('friends.index')));
+            Mail::to($addressee->email)->send(new FriendRequestReceivedMail(
+                route('friends.index'),
+                Unsubscribe::url($addressee->id, 'friend_requests'),
+            ));
         }
     }
 
@@ -38,7 +42,10 @@ class FriendshipObserver
         $requester = User::find($friendship->requester_id);
 
         if ($requester && $requester->email && $requester->wantsNotification('friend_accepted')) {
-            Mail::to($requester->email)->send(new FriendRequestAcceptedMail(route('friends.index')));
+            Mail::to($requester->email)->send(new FriendRequestAcceptedMail(
+                route('friends.index'),
+                Unsubscribe::url($requester->id, 'friend_accepted'),
+            ));
         }
     }
 }

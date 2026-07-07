@@ -41,4 +41,18 @@ class FriendsController extends Controller
         $friendship->update(['status' => $action === 'accept' ? 'accepted' : 'declined']);
         return back()->with('status', $action === 'accept' ? 'Kamoš pridaný!' : 'Odmietnuté');
     }
+
+    /**
+     * Remove a friendship. Allowed for either side of the relationship
+     * (unfriend an accepted friend, or cancel a request you sent).
+     */
+    public function unfriend(Friendship $friendship): RedirectResponse
+    {
+        $me = Auth::id();
+        abort_if($friendship->requester_id !== $me && $friendship->addressee_id !== $me, 403);
+
+        $friendship->delete();
+
+        return back()->with('status', 'Kamoš odobraný.');
+    }
 }

@@ -43,9 +43,18 @@
         @elseif ($friendship->status === 'pending')
             <span class="rounded-full bg-muted px-3 py-1.5 text-xs text-muted-foreground">Žiadosť čaká</span>
         @elseif ($friendship->status === 'accepted')
-            <span class="inline-flex items-center gap-1 rounded-full bg-[var(--heart-soft)] px-3 py-1.5 text-xs text-accent">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Kamoši
-            </span>
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1 rounded-full bg-[var(--heart-soft)] px-3 py-1.5 text-xs text-accent">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Kamoši
+                </span>
+                <form method="POST" action="{{ route('friends.unfriend', $friendship) }}" onsubmit="return confirm('Odobrať tohto kamoša zo zoznamu?');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground transition hover:border-destructive/40 hover:text-destructive">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" x2="22" y1="8" y2="13"/><line x1="22" x2="17" y1="8" y2="13"/></svg> Odobrať
+                    </button>
+                </form>
+            </div>
         @endif
     </section>
 

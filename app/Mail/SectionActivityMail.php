@@ -21,6 +21,7 @@ class SectionActivityMail extends Mailable implements ShouldQueue
         public string $kind,
         public string $section,
         public string $actionUrl,
+        public ?string $unsubscribeUrl = null,
     ) {}
 
     public function envelope(): Envelope
@@ -36,6 +37,7 @@ class SectionActivityMail extends Mailable implements ShouldQueue
             'kind' => $this->kind,
             'section' => $this->section,
             'actionUrl' => $this->actionUrl,
+            'unsubscribeUrl' => $this->unsubscribeUrl,
         ]);
     }
 }

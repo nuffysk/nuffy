@@ -78,6 +78,16 @@
             <form method="POST" action="{{ route('sos.store') }}" enctype="multipart/form-data" class="mt-4 space-y-4 rounded-3xl border border-border bg-card p-5 shadow-[var(--shadow-soft)]">
                 @csrf
                 <input type="hidden" name="kind" value="{{ $kind }}">
+
+                @if ($errors->any())
+                    <div class="rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+                        <ul class="list-disc space-y-1 pl-5">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                 <div class="flex items-center gap-2">
                     @if ($kind === 'found')
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" class="text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/></svg>
@@ -88,22 +98,40 @@
                 </div>
                 <div class="space-y-2">
                     <label class="text-sm font-medium">Meno psa</label>
-                    <input type="text" name="dog_name" maxlength="40" placeholder="{{ $kind === 'found' ? 'napr. Bella (ak nevieš, nechaj prázdne)' : 'napr. Bella' }}" class="block w-full rounded-xl border border-input bg-background px-4 py-3 text-sm">
+                    <input type="text" name="dog_name" maxlength="40" value="{{ old('dog_name') }}" placeholder="{{ $kind === 'found' ? 'napr. Bella (ak nevieš, nechaj prázdne)' : 'napr. Bella' }}" class="block w-full rounded-xl border border-input bg-background px-4 py-3 text-sm">
                     @if ($kind === 'found')
                         <p class="text-[11px] text-muted-foreground">Ak meno nevieš, automaticky uvedieme „nepoznáme“.</p>
                     @endif
                 </div>
-                <div class="space-y-2">
+                <div class="space-y-2" x-data="{ desc: @js(old('description', '')) }">
                     <label class="text-sm font-medium">Popis</label>
-                    <textarea name="description" rows="4" maxlength="1000" placeholder="{{ $kind === 'found' ? 'Pes, čierny, bez obojku, pri autobusovej zastávke…' : 'Naša Bella, hnedý kríženec, utiekla z dvora…' }}" required class="block w-full rounded-xl border border-input bg-background px-4 py-3 text-sm"></textarea>
+                    <textarea name="description" x-model="desc" rows="4" minlength="5" maxlength="1000" placeholder="{{ $kind === 'found' ? 'Pes, čierny, bez obojku, pri autobusovej zastávke…' : 'Naša Bella, hnedý kríženec, utiekla z dvora…' }}" required class="block w-full rounded-xl border border-input bg-background px-4 py-3 text-sm">{{ old('description') }}</textarea>
+                    <p class="text-[11px]" :class="desc.trim().length > 0 && desc.trim().length < 5 ? 'text-destructive' : 'text-muted-foreground'">
+                        Popis musí mať aspoň 5 znakov (<span x-text="desc.trim().length"></span>/5).
+                    </p>
                 </div>
                 <div class="space-y-2">
                     <label class="text-sm font-medium">Mesto / lokalita</label>
-                    <input type="text" name="city" maxlength="60" placeholder="Bratislava" class="block w-full rounded-xl border border-input bg-background px-4 py-3 text-sm">
+                    <input type="text" name="city" maxlength="60" value="{{ old('city') }}" placeholder="Bratislava" class="block w-full rounded-xl border border-input bg-background px-4 py-3 text-sm">
                 </div>
-                <div class="space-y-2">
+                <div class="space-y-2" x-data="{
+                    preview: null,
+                    tooBig: false,
+                    pick(e) {
+                        const f = e.target.files[0];
+                        if (! f) { this.preview = null; this.tooBig = false; return; }
+                        this.tooBig = f.size > 5 * 1024 * 1024;
+                        this.preview = URL.createObjectURL(f);
+                    }
+                }">
                     <label class="text-sm font-medium">Fotka (voliteľné)</label>
-                    <input id="sos-file" type="file" name="photo" accept="image/*" class="block w-full text-sm">
+                    <input id="sos-file" type="file" name="photo" accept="image/*" class="block w-full text-sm" x-on:change="pick($event)">
+                    <template x-if="preview">
+                        <img :src="preview" alt="Náhľad" class="mt-2 max-h-56 w-full rounded-xl object-cover">
+                    </template>
+                    <p x-show="tooBig" class="text-sm text-destructive" style="display:none;">Fotka je väčšia ako 5 MB — vyber menšiu.</p>
+                    <p class="text-[11px] text-muted-foreground">Fotka môže mať najviac 5 MB (JPG, PNG).</p>
+                    @error('photo')<p class="text-sm text-destructive">{{ $message }}</p>@enderror
                 </div>
                 <div class="space-y-3 rounded-2xl border border-border bg-muted/30 p-4">
                     <label class="text-sm font-medium">Telefónne číslo (voliteľné)</label>

@@ -4,7 +4,9 @@ namespace App\Observers;
 
 use App\Mail\SectionActivityMail;
 use App\Models\LearnTopic;
+use App\Models\User;
 use App\Support\NotifyUsers;
+use App\Support\Unsubscribe;
 
 class LearnTopicObserver
 {
@@ -20,7 +22,12 @@ class LearnTopicObserver
 
         NotifyUsers::broadcast(
             'videos',
-            new SectionActivityMail('video', 'Závoditko', route('learn.show', $topic->slug)),
+            fn (User $u) => new SectionActivityMail(
+                'video',
+                'Závoditko',
+                route('learn.show', $topic->slug),
+                Unsubscribe::url($u->id, 'videos'),
+            ),
         );
     }
 }

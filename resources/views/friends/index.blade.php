@@ -39,6 +39,13 @@
                             @if ($other->city)<p class="truncate text-xs text-muted-foreground">{{ $other->city }}</p>@endif
                         </div>
                     </a>
+                    <form method="POST" action="{{ route('friends.unfriend', $f) }}" onsubmit="return confirm('Odobrať {{ $other->display_name ?? $other->name ?? 'tohto kamoša' }} zo zoznamu kamošov?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" aria-label="Odobrať kamoša" class="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition hover:bg-destructive/10 hover:text-destructive">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" x2="22" y1="8" y2="13"/><line x1="22" x2="17" y1="8" y2="13"/></svg>
+                        </button>
+                    </form>
                 </li>
             @empty
                 <p class="text-sm text-muted-foreground">Nič tu zatiaľ nie je.</p>

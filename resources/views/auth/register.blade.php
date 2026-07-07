@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="pt-8" x-data="{ password: '', confirm: '', birthYear: '', agreeTerms: {{ old('agree_terms') ? 'true' : 'false' }}, agreePrivacy: {{ old('agree_privacy') ? 'true' : 'false' }}, minAge: 16, get age() { const y = parseInt(this.birthYear, 10); return Number.isFinite(y) ? new Date().getFullYear() - y : -1; }, get tooYoung() { return this.birthYear !== '' && Number.isFinite(parseInt(this.birthYear, 10)) && this.age < this.minAge; }, get canSubmit() { return this.agreeTerms && this.agreePrivacy && this.password.length >= 8 && this.password === this.confirm && this.birthYear !== '' && !this.tooYoung; } }">
+    <div class="pt-8" x-data="{ password: '', confirm: '', birthYear: '', agreeTerms: {{ old('agree_terms') ? 'true' : 'false' }}, agreePrivacy: {{ old('agree_privacy') ? 'true' : 'false' }}, minAge: 18, get age() { const y = parseInt(this.birthYear, 10); return Number.isFinite(y) ? new Date().getFullYear() - y : -1; }, get tooYoung() { return this.birthYear !== '' && Number.isFinite(parseInt(this.birthYear, 10)) && this.age < this.minAge; }, get canSubmit() { return this.agreeTerms && this.agreePrivacy && this.password.length >= 8 && this.password === this.confirm && this.birthYear !== '' && !this.tooYoung; } }">
         <h1 class="font-display text-4xl">
             Pridaj sa<span class="text-accent">.</span>
         </h1>
@@ -62,7 +62,7 @@
                     class="block w-full rounded-xl border border-input bg-background px-4 py-3 text-base"
                 >
                 <p x-show="tooYoung" class="text-sm text-destructive" style="display: none;">
-                    Aplikáciu môžu používať iba osoby od 16 rokov.
+                    Aplikáciu môžu používať iba osoby od 18 rokov.
                 </p>
                 @error('birth_year')<p class="text-sm text-destructive">{{ $message }}</p>@enderror
             </div>
