@@ -24,7 +24,10 @@ class FriendsController extends Controller
         $accepted = $friendships->where('status', 'accepted');
         $incoming = $friendships->where('status', 'pending')->where('addressee_id', $me->id);
 
-        $excludeIds = $friendships->flatMap(fn ($f) => [$f->requester_id, $f->addressee_id])->push($me->id)->unique();
+        $excludeIds = $friendships->flatMap(fn ($f) => [$f->requester_id, $f->addressee_id])
+            ->push($me->id)
+            ->merge($me->blockedUserIds())
+            ->unique();
         $suggestions = User::whereNotIn('id', $excludeIds)
             ->select('id', 'name', 'display_name', 'avatar_url', 'city')
             ->inRandomOrder()

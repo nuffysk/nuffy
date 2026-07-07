@@ -12,15 +12,22 @@
             'cestovanie-so-psom' => 'https://www.youtube.com/watch?v=1aijtMzHV_8',
             'oblecenie-pre-psa' => 'https://www.youtube.com/watch?v=LgyEQ1bxRA8',
         ];
-        $yt = $youtubeMap[$topic->slug] ?? null;
+        // Prefer the topic's own video_url (admin-managed); the hardcoded map is
+        // only a fallback for the original topics.
+        $yt = $topic->video_url ?: ($youtubeMap[$topic->slug] ?? null);
         $ytSlugs = array_keys($youtubeMap);
 
-        // Extract the 11-char YouTube video id from a watch/share URL.
+        // Extract the 11-char YouTube video id from a watch/share/embed URL.
         $ytId = null;
-        if ($yt && preg_match('~(?:v=|youtu\.be/|embed/)([A-Za-z0-9_-]{11})~', $yt, $m)) {
+        if ($yt && preg_match('~(?:v=|youtu\.be/|embed/|shorts/)([A-Za-z0-9_-]{11})~', $yt, $m)) {
             $ytId = $m[1];
         }
+        $isDirectVideo = $topic->video_url && ! $ytId && ! str_contains($topic->video_url, 'youtu');
     @endphp
+
+    @if (session('status'))
+        <p class="mt-3 rounded-xl border border-border bg-card px-4 py-2 text-sm text-accent">{{ session('status') }}</p>
+    @endif
 
     <a href="{{ route('learn.index') }}" class="mt-4 inline-flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1.5 text-sm text-foreground hover:bg-muted">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -66,13 +73,15 @@
         </a>
     @endif
 
-    @if ($topic->thumbnail_url && ! in_array($topic->slug, $ytSlugs))
+    {{-- Thumbnail alone (no video at all) --}}
+    @if ($topic->thumbnail_url && ! $ytId && ! $isDirectVideo)
         <div class="mt-5 aspect-[16/9] overflow-hidden rounded-3xl bg-muted">
             <img src="{{ $topic->thumbnail_url }}" alt="{{ $topic->title }}" class="h-full w-full object-cover">
         </div>
     @endif
 
-    @if ($topic->video_url && ! in_array($topic->slug, $ytSlugs))
+    {{-- Directly hosted video file (non-YouTube) --}}
+    @if ($isDirectVideo)
         <div class="mt-4 aspect-video overflow-hidden rounded-2xl bg-black">
             <video src="{{ $topic->video_url }}" controls class="h-full w-full"></video>
         </div>

@@ -129,6 +129,13 @@ class DogController extends Controller
             'vet' => ['nullable', 'string', 'max:120'],
             'photos' => ['nullable', 'array', 'max:4'],
             'photos.*' => ['image', 'max:5120'],
+        ], [
+            'name.required' => 'Zadaj meno psíka.',
+            'gender.required' => 'Vyber pohlavie psíka.',
+            'gender.in' => 'Vyber pohlavie psíka.',
+            'birth_date.before' => 'Dátum narodenia nemôže byť v budúcnosti.',
+            'photos.*.max' => 'Fotka môže mať najviac 5 MB.',
+            'photos.*.image' => 'Súbor musí byť obrázok (JPG, PNG).',
         ]);
 
         $data['vaccinated'] = $request->boolean('vaccinated');

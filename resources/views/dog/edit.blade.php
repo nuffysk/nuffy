@@ -38,6 +38,16 @@
             <p class="mt-2 text-sm text-accent">{{ session('status') }}</p>
         @endif
 
+        @if ($errors->any())
+            <div class="mt-3 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
+                <ul class="list-disc space-y-1 pl-5">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <form method="POST" action="{{ $dog->exists ? route('dog.update', $dog) : route('dog.store') }}" enctype="multipart/form-data" class="mt-4 space-y-5">
             @csrf
             @if ($dog->exists) @method('PATCH') @endif

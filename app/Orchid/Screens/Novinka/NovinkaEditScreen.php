@@ -32,6 +32,11 @@ class NovinkaEditScreen extends Screen
         return $this->exists ? 'Upraviť novinku' : 'Nová novinka';
     }
 
+    public function permission(): ?iterable
+    {
+        return ['platform.content'];
+    }
+
     public function commandBar(): iterable
     {
         $buttons = [Button::make('Uložiť')->method('save')->icon('bs.save')];

@@ -32,6 +32,11 @@ class LearnTopicEditScreen extends Screen
         return $this->exists ? 'Upraviť tému' : 'Nová téma';
     }
 
+    public function permission(): ?iterable
+    {
+        return ['platform.content'];
+    }
+
     public function commandBar(): iterable
     {
         $buttons = [Button::make('Uložiť')->method('save')->icon('bs.save')];

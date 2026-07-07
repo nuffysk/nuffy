@@ -303,15 +303,37 @@ class UserEditScreen extends Screen
         return redirect()->route(config('platform.index'));
     }
 
+    /** Owner foreign-key column(s) per moderatable model. */
+    private const OWNER_KEYS = [
+        'Dog' => ['owner_id'],
+        'Post' => ['author_id'],
+        'SosReport' => ['reporter_id'],
+        'HelpReport' => ['reporter_id'],
+        'LearnComment' => ['author_id'],
+        'PlaceSuggestion' => ['user_id'],
+        'TopicRequest' => ['user_id'],
+        'Friendship' => ['requester_id', 'addressee_id'],
+        'ForumTopic' => ['author_id'],
+        'ForumComment' => ['author_id'],
+    ];
+
     /**
      * Delete a single moderatable record created by the user.
      */
-    public function deleteRecord(Request $request): void
+    public function deleteRecord(User $user, Request $request): void
     {
-        $class = self::MODERATABLE[$request->get('model')] ?? null;
+        $model = (string) $request->get('model');
+        $class = self::MODERATABLE[$model] ?? null;
         abort_unless($class, 404);
 
-        $class::findOrFail($request->get('id'))->delete();
+        $item = $class::findOrFail($request->get('id'));
+
+        // The record must actually belong to the user being edited.
+        $ownedBy = collect(self::OWNER_KEYS[$model] ?? [])
+            ->contains(fn (string $key) => (int) $item->{$key} === (int) $user->id);
+        abort_unless($ownedBy, 403);
+
+        $item->delete();
 
         Toast::info('Položka bola zmazaná.');
     }

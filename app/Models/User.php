@@ -160,6 +160,36 @@ class User extends Authenticatable implements MustVerifyEmail
             ->exists();
     }
 
+    /** Users this user has blocked. */
+    public function blocks()
+    {
+        return $this->hasMany(UserBlock::class, 'blocker_id');
+    }
+
+    public function hasBlocked(User $other): bool
+    {
+        return $this->blocks()->where('blocked_id', $other->id)->exists();
+    }
+
+    /** True when either side blocked the other. */
+    public function isBlockedWith(User $other): bool
+    {
+        return UserBlock::where(function ($q) use ($other) {
+            $q->where(['blocker_id' => $this->id, 'blocked_id' => $other->id])
+              ->orWhere(['blocker_id' => $other->id, 'blocked_id' => $this->id]);
+        })->exists();
+    }
+
+    /** IDs of users blocked by me or who blocked me (for filtering lists). */
+    public function blockedUserIds(): array
+    {
+        return UserBlock::where('blocker_id', $this->id)->pluck('blocked_id')
+            ->merge(UserBlock::where('blocked_id', $this->id)->pluck('blocker_id'))
+            ->unique()
+            ->values()
+            ->all();
+    }
+
     /**
      * The attributes for which you can use filters in url.
      *

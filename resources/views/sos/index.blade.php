@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="pt-6" x-data="{ phoneConsent: false, contact: null }">
+    <div class="pt-6" x-data="{ phoneConsent: {{ old('phone_consent') ? 'true' : 'false' }} }">
         <h1 class="font-display text-3xl">Záchranná linka</h1>
         <p class="mt-1 text-sm text-muted-foreground">Pomôžme strateným a nájdeným psíkom späť domov 🐾</p>
 
@@ -144,7 +144,8 @@
                             <a href="mailto:nuffy@nuffy.sk" class="text-accent underline">nuffy@nuffy.sk</a>.
                         </span>
                     </label>
-                    <input type="tel" name="phone" maxlength="30" placeholder="+421 900 123 456" :disabled="!phoneConsent" :class="!phoneConsent ? 'opacity-60' : ''" class="block w-full rounded-xl border border-input bg-background px-4 py-3 text-sm">
+                    <input type="tel" name="phone" maxlength="30" value="{{ old('phone') }}" placeholder="+421 900 123 456" :disabled="!phoneConsent" :class="!phoneConsent ? 'opacity-60' : ''" class="block w-full rounded-xl border border-input bg-background px-4 py-3 text-sm">
+                    @error('phone_consent')<p class="text-sm text-destructive">{{ $message }}</p>@enderror
                     <p x-show="!phoneConsent" class="text-[11px] text-muted-foreground">
                         Najprv prosím odsúhlas podmienky vyššie, potom môžeš zadať telefónne číslo.
                     </p>
@@ -202,21 +203,18 @@
                         </div>
                         <p class="mt-2 whitespace-pre-line text-sm">{{ $r->description }}</p>
                         @if ($r->phone || $r->contact)
-                            <div class="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
-                                @if ($r->phone)<a href="tel:{{ $r->phone }}" class="inline-flex items-center gap-1 text-foreground hover:text-accent">📞 {{ $r->phone }}</a>@endif
-                                @if ($r->contact)<span class="text-foreground">{{ $r->contact }}</span>@endif
-                            </div>
+                            {{-- Kontakty vidia len prihlásení — v súlade so súhlasom „pre registrovaných používateľov" --}}
+                            @auth
+                                <div class="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                                    @if ($r->phone)<a href="tel:{{ $r->phone }}" class="inline-flex items-center gap-1 text-foreground hover:text-accent">📞 {{ $r->phone }}</a>@endif
+                                    @if ($r->contact)<span class="text-foreground">{{ $r->contact }}</span>@endif
+                                </div>
+                            @else
+                                <p class="mt-2 text-xs text-muted-foreground">
+                                    Kontakt uvidíš po <a href="{{ route('login') }}" class="text-accent underline">prihlásení</a>.
+                                </p>
+                            @endauth
                         @endif
-                        @auth
-                            @if ($r->reporter && $r->reporter_id !== auth()->id())
-                                <button type="button"
-                                    @click="contact = { id: {{ $r->reporter_id }}, name: @js($r->reporter->display_name ?? $r->reporter->name), kind: '{{ $r->kind }}', desc: @js($r->description) }"
-                                    class="mt-3 inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium hover:bg-muted">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
-                                    {{ $r->kind === 'found' ? 'Kontaktovať nálezcu' : 'Kontaktovať majiteľa' }}
-                                </button>
-                            @endif
-                        @endauth
                         @php
                             $typLabel = $r->kind === 'found' ? 'Nájdený pes' : 'Stratený pes';
                             $menoPsa = 'Neznámy';
@@ -232,12 +230,8 @@
                                 ."Typ: {$typLabel}\n"
                                 ."Meno psa: {$menoPsa}\n"
                                 ."Lokalita: ".($r->city ?: '—')."\n"
-                                ."Dátum zverejnenia: ".$r->created_at->format('d.m.Y')."\n"
-                                ."Dôvod nahlásenia: [doplň dôvod]\n\n"
-                                ."👤 Nahlásil\n\n"
-                                ."Používateľ: [doplň meno/email]\n"
-                                ."Dátum nahlásenia: ".now()->format('d.m.Y, H:i:s')."\n\n"
-                                ."—\nTento email bol automaticky vygenerovaný platformou nuffy.sk.";
+                                ."Dátum zverejnenia: ".$r->created_at->format('d.m.Y')."\n\n"
+                                ."Dôvod nahlásenia (doplň prosím): \n";
                             $neaktMailto = 'mailto:nuffy@nuffy.sk?subject='.rawurlencode("Nový podnet – neaktuálny inzerát: {$menoPsa}").'&body='.rawurlencode($neaktBody);
                         @endphp
                         <div class="mt-5 flex flex-col items-center gap-1.5">
@@ -253,28 +247,6 @@
             @endforelse
         </div>
 
-        {{-- ContactDialog --}}
-        @auth
-            <div x-show="contact" @keydown.escape.window="contact = null" class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display:none;">
-                <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="contact = null"></div>
-                <div class="relative w-full max-w-sm rounded-2xl border border-border bg-card p-5 shadow-2xl">
-                    <h2 class="font-display text-lg" x-text="contact && contact.kind === 'found' ? 'Kontaktovať nálezcu' : 'Kontaktovať majiteľa'"></h2>
-                    <template x-if="contact">
-                        <form method="POST" :action="'{{ url('/inbox') }}/' + contact.id" class="mt-3 space-y-3">
-                            @csrf
-                            <div class="rounded-2xl border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
-                                <p class="line-clamp-3" x-text="contact.desc"></p>
-                            </div>
-                            <textarea name="body" rows="4" maxlength="1000" placeholder="Napíš správu…" required class="block w-full rounded-xl border border-input bg-background px-4 py-3 text-sm"
-                                x-init="$el.value = contact.kind === 'found' ? 'Ahoj, myslím, že je to môj psík. Vieš mi o ňom povedať viac?' : 'Ahoj, asi som videl/a vášho psíka. Mohli by sme sa skontaktovať?'"></textarea>
-                            <div class="flex justify-end gap-2">
-                                <button type="button" @click="contact = null" class="inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted">Zrušiť</button>
-                                <button type="submit" class="inline-flex items-center justify-center rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Odoslať 💌</button>
-                            </div>
-                        </form>
-                    </template>
-                </div>
-            </div>
-        @endauth
+        {{-- Kontakt na nahlasovateľa ide cez telefón / kontaktný údaj v inzeráte (správy boli zrušené) --}}
     </div>
 @endsection

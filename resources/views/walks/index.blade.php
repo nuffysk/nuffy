@@ -3,7 +3,7 @@
 @section('content')
     <div class="pt-6" x-data="{ newTopic: false }">
         <h1 class="font-display text-3xl">Fórum</h1>
-        <p class="mt-1 text-sm text-muted-foreground">Diskutuj s komunitou Ňuffy.</p>
+        <p class="mt-1 text-sm text-muted-foreground">Diskutuj s komunitou Ňuffy. Témy zakladá tím Ňuffy — komentovať môže každý prihlásený.</p>
 
         @if (session('status'))<p class="mt-3 text-sm text-accent">{{ session('status') }}</p>@endif
 

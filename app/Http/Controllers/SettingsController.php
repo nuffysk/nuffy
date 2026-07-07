@@ -24,7 +24,12 @@ class SettingsController extends Controller
     public function emailForm(): View { return view('settings.email'); }
     public function passwordForm(): View { return view('settings.password'); }
     public function notifications(): View { return view('settings.notifications'); }
-    public function blocked(): View { return view('settings.blocked'); }
+    public function blocked(): View
+    {
+        $blocks = Auth::user()->blocks()->with('blocked:id,name,display_name,avatar_url,city')->latest()->get();
+
+        return view('settings.blocked', compact('blocks'));
+    }
 
     public function updateEmail(Request $request): RedirectResponse
     {

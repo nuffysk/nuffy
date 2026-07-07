@@ -67,7 +67,7 @@
     {{-- Mesto --}}
     <section class="mt-3 rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-soft)]">
         <p class="text-xs font-medium uppercase tracking-wide text-muted-foreground">Mesto</p>
-        <p class="mt-2 text-sm @if (! $user->city) text-muted-foreground @endif">{{ $user->city ?: '.....' }}</p>
+        <p class="mt-2 text-sm @if (! $user->city) italic text-muted-foreground @endif">{{ $user->city ?: 'neuvedené' }}</p>
     </section>
 
     {{-- Instagram --}}
@@ -77,7 +77,11 @@
         </p>
         <div class="mt-2 flex items-center gap-1">
             <span class="text-sm text-muted-foreground">@</span>
-            <span class="flex-1 text-sm @if (! $user->instagram) text-muted-foreground @endif">{{ $user->instagram ? ltrim($user->instagram, '@') : 'instagram_účet' }}</span>
+            @if ($user->instagram)
+                <a href="https://instagram.com/{{ ltrim($user->instagram, '@') }}" target="_blank" rel="noopener noreferrer" class="flex-1 text-sm text-accent underline-offset-2 hover:underline">{{ ltrim($user->instagram, '@') }}</a>
+            @else
+                <span class="flex-1 text-sm italic text-muted-foreground">instagram_účet</span>
+            @endif
         </div>
         <p class="mt-1 text-[11px] text-muted-foreground">
             Otvorí sa v Instagram aplikácii / prehliadači.
@@ -87,7 +91,7 @@
     {{-- Psíkovia --}}
     <section class="mt-4">
         <div class="mb-2 flex items-baseline justify-between">
-            <h2 class="font-display text-xl">Pridaj psíka</h2>
+            <h2 class="font-display text-xl">{{ $dogs->isEmpty() ? 'Pridaj psíka' : 'Moji psíci' }}</h2>
         </div>
         @if ($dogs->isEmpty())
             <a href="{{ route('dog.create') }}" class="flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-card/50 px-4 py-6 text-sm text-muted-foreground transition hover:border-accent hover:text-accent">

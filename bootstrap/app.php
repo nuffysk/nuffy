@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\SiteGate::class,
             \App\Http\Middleware\EnsureMinimumAge::class,
+            \App\Http\Middleware\EnsureOnboarded::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

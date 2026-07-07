@@ -21,6 +21,11 @@ class PlaceListScreen extends Screen
     public function name(): ?string { return 'Miesta'; }
     public function description(): ?string { return 'Hotely, salóny, parky, škôlky a reštaurácie pre psíkov.'; }
 
+    public function permission(): ?iterable
+    {
+        return ['platform.content'];
+    }
+
     public function commandBar(): iterable
     {
         return [

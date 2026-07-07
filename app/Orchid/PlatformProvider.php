@@ -8,7 +8,6 @@ use Orchid\Platform\Dashboard;
 use Orchid\Platform\ItemPermission;
 use Orchid\Platform\OrchidServiceProvider;
 use Orchid\Screen\Actions\Menu;
-use Orchid\Support\Color;
 
 class PlatformProvider extends OrchidServiceProvider
 {
@@ -42,19 +41,44 @@ class PlatformProvider extends OrchidServiceProvider
             Menu::make('SOS hlásenia')
                 ->icon('bs.exclamation-triangle')
                 ->route('platform.sos')
+                ->permission('platform.content')
                 ->badge(fn () => \App\Models\SosReport::where('status', 'open')->count()),
+
+            Menu::make('Žiadosti o pomoc')
+                ->icon('bs.heart-pulse')
+                ->route('platform.help-reports')
+                ->permission('platform.content')
+                ->badge(fn () => \App\Models\HelpReport::where('status', 'open')->count()),
 
             Menu::make('Miesta')
                 ->icon('bs.geo-alt')
-                ->route('platform.places'),
+                ->route('platform.places')
+                ->permission('platform.content'),
+
+            Menu::make('Návrhy miest')
+                ->icon('bs.geo')
+                ->route('platform.place-suggestions')
+                ->permission('platform.content'),
 
             Menu::make('Novinky')
                 ->icon('bs.newspaper')
-                ->route('platform.novinky'),
+                ->route('platform.novinky')
+                ->permission('platform.content'),
 
             Menu::make('Zavoditko (témy)')
                 ->icon('bs.book')
                 ->route('platform.learn')
+                ->permission('platform.content'),
+
+            Menu::make('Návrhy tém')
+                ->icon('bs.lightbulb')
+                ->route('platform.topic-requests')
+                ->permission('platform.content'),
+
+            Menu::make('Fórum')
+                ->icon('bs.chat-square-text')
+                ->route('platform.forum')
+                ->permission('platform.content')
                 ->divider(),
 
             Menu::make(__('Users'))
@@ -77,20 +101,7 @@ class PlatformProvider extends OrchidServiceProvider
             Menu::make(__('Roles'))
                 ->icon('bs.shield')
                 ->route('platform.systems.roles')
-                ->permission('platform.systems.roles')
-                ->divider(),
-
-            Menu::make('Documentation')
-                ->title('Docs')
-                ->icon('bs.box-arrow-up-right')
-                ->url('https://orchid.software/en/docs')
-                ->target('_blank'),
-
-            Menu::make('Changelog')
-                ->icon('bs.box-arrow-up-right')
-                ->url('https://github.com/orchidsoftware/platform/blob/master/CHANGELOG.md')
-                ->target('_blank')
-                ->badge(fn () => Dashboard::version(), Color::DARK),
+                ->permission('platform.systems.roles'),
         ];
     }
 
@@ -105,6 +116,9 @@ class PlatformProvider extends OrchidServiceProvider
             ItemPermission::group(__('System'))
                 ->addPermission('platform.systems.roles', __('Roles'))
                 ->addPermission('platform.systems.users', __('Users')),
+
+            ItemPermission::group('Obsah')
+                ->addPermission('platform.content', 'Správa obsahu (SOS, miesta, novinky, témy, fórum)'),
         ];
     }
 }

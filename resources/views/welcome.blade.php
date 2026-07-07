@@ -1,6 +1,10 @@
 @extends('layouts.app')
 
 @section('content')
+    @if (session('status'))
+        <p class="mt-4 rounded-xl border border-border bg-card px-4 py-3 text-sm text-accent">{{ session('status') }}</p>
+    @endif
+
     @guest
         <section class="pt-6">
             <p class="mb-3 text-xs uppercase tracking-[0.22em] text-muted-foreground">Pre ľudí a ich psíkov</p>

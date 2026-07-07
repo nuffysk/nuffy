@@ -1,7 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="pt-6" x-data="{ confirm: false }">
+    {{-- Re-open the confirm modal when the password failed, so the error is visible --}}
+    <div class="pt-6" x-data="{ confirm: {{ $errors->has('password') ? 'true' : 'false' }} }">
         <h1 class="font-display text-3xl">Účet</h1>
 
         <a href="{{ route('settings') }}" class="mt-2 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
@@ -37,6 +38,10 @@
                     @method('DELETE')
                     <input type="password" name="password" placeholder="Tvoje heslo" required class="block w-full rounded-xl border border-input bg-background px-4 py-3 text-sm">
                     @error('password')<p class="text-sm text-destructive">{{ $message }}</p>@enderror
+                    <p class="text-[11px] text-muted-foreground">
+                        Prihlásil/a si sa cez Google a heslo nemáš? Najprv si ho nastav cez
+                        <a href="{{ route('settings.password') }}" class="text-accent underline">Zmenu hesla</a>.
+                    </p>
                     <div class="flex gap-2">
                         <button type="button" @click="confirm = false" class="flex-1 rounded-xl border border-border bg-card px-4 py-2 text-sm">Zrušiť</button>
                         <button type="submit" class="flex-1 rounded-xl bg-destructive px-4 py-2 text-sm text-destructive-foreground">Vymazať</button>

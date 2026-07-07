@@ -56,6 +56,15 @@
                 </form>
             </div>
         @endif
+
+        <form method="POST" action="{{ route('users.block', $user) }}" class="mt-3"
+              onsubmit="return confirm('Zablokovať tohto používateľa? Zruší sa aj prípadné priateľstvo a navzájom si neuvidíte profily.');">
+            @csrf
+            <button type="submit" class="inline-flex items-center gap-1 text-xs text-muted-foreground transition hover:text-destructive">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>
+                Zablokovať používateľa
+            </button>
+        </form>
     </section>
 
     <section class="mt-8">
@@ -64,11 +73,18 @@
             @foreach ($dogs as $d)
                 @php
                     $photos = ! empty($d->photos) ? $d->photos : ($d->photo_url ? [$d->photo_url] : []);
-                    $age = $d->birth_year ? (now()->year - (int) $d->birth_year) : null;
+                    // Age from birth_date (the column the dog form actually saves).
+                    $age = null;
+                    if ($d->birth_date) {
+                        $diff = $d->birth_date->diff(now());
+                        $age = $diff->y >= 1 ? $diff->y.' r.' : max(0, $diff->m).' mes.';
+                    } elseif ($d->birth_year) {
+                        $age = (now()->year - (int) $d->birth_year).' r.';
+                    }
                     $dogFields = [
                         ['Plemeno', $d->breed],
                         ['Veľkosť', $d->size ? ($sizeLabel[$d->size] ?? null) : null],
-                        ['Vek', $age ? $age.' r.' : null],
+                        ['Vek', $age],
                         ['Pohlavie', ($d->gender && $d->gender !== 'unspecified') ? ($genderLabel[$d->gender] ?? null) : null],
                         ['Povaha', $d->personality],
                         ['Veterinár', $d->vet],

@@ -2,9 +2,7 @@
 
 use App\Http\Controllers\Auth\GoogleOAuthController;
 use App\Http\Controllers\DogController;
-use App\Http\Controllers\FeedController;
 use App\Http\Controllers\FriendsController;
-use App\Http\Controllers\InboxController;
 use App\Http\Controllers\LearnController;
 use App\Http\Controllers\NovinkyController;
 use App\Http\Controllers\PlacesController;
@@ -81,6 +79,12 @@ Route::middleware('signed')->group(function () {
         ->name('settings.account.delete.perform');
 });
 
+// One-time onboarding for Google-OAuth users (birth year + consents).
+Route::middleware('auth')->group(function () {
+    Route::get('/onboarding', [\App\Http\Controllers\Auth\OnboardingController::class, 'show'])->name('onboarding.show');
+    Route::post('/onboarding', [\App\Http\Controllers\Auth\OnboardingController::class, 'store'])->name('onboarding.store');
+});
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/sos', [SosController::class, 'store'])->name('sos.store');
     // Learn interactivity
@@ -124,15 +128,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Public user profile
     Route::get('/u/{user}', [UserPublicController::class, 'show'])->name('users.show');
     Route::post('/u/{user}/friend', [UserPublicController::class, 'addFriend'])->name('users.friend');
+    Route::post('/u/{user}/block', [UserPublicController::class, 'block'])->name('users.block');
+    Route::delete('/u/{user}/block', [UserPublicController::class, 'unblock'])->name('users.unblock');
 
     // Novinky write (admin only — enforced in controller)
     Route::post('/novinky', [NovinkyController::class, 'store'])->name('novinky.store');
     Route::patch('/novinky/{novinka}', [NovinkyController::class, 'update'])->name('novinky.update');
     Route::delete('/novinky/{novinka}', [NovinkyController::class, 'destroy'])->name('novinky.destroy');
-
-    // Feed
-    Route::get('/feed', [FeedController::class, 'index'])->name('feed.index');
-    Route::post('/feed', [FeedController::class, 'store'])->name('feed.store');
 
     // Friends
     Route::get('/friends', [FriendsController::class, 'index'])->name('friends.index');
@@ -142,12 +144,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Place suggestion
     Route::post('/places/suggest', [PlacesController::class, 'suggest'])->name('places.suggest');
-
-    // Inbox / chat
-    Route::get('/inbox', [InboxController::class, 'index'])->name('inbox.index');
-    Route::get('/inbox/{user}', [InboxController::class, 'show'])->name('inbox.show');
-    Route::post('/inbox/{user}', [InboxController::class, 'send'])->name('inbox.send');
-    Route::get('/inbox/{user}/poll', [InboxController::class, 'poll'])->name('inbox.poll');
 
     // Walks/Forum write
     Route::post('/walks', [WalksController::class, 'store'])->name('walks.store');

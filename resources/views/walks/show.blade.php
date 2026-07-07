@@ -38,6 +38,12 @@
                 <p class="text-sm text-muted-foreground">Buď prvý kto napíše komentár 🐾</p>
             @endforelse
 
+            @guest
+                <p class="border-t border-border/60 pt-3 text-sm text-muted-foreground">
+                    Chceš sa zapojiť do diskusie? <a href="{{ route('login') }}" class="text-accent underline">Prihlás sa</a>
+                    alebo si <a href="{{ route('register') }}" class="text-accent underline">vytvor účet</a>.
+                </p>
+            @endguest
             @auth
                 <form method="POST" action="{{ route('walks.comments.store', $topic) }}" class="flex items-end gap-2 border-t border-border/60 pt-2">
                     @csrf

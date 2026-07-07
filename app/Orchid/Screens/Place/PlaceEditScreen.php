@@ -32,6 +32,11 @@ class PlaceEditScreen extends Screen
         return $this->exists ? 'Upraviť miesto' : 'Nové miesto';
     }
 
+    public function permission(): ?iterable
+    {
+        return ['platform.content'];
+    }
+
     public function commandBar(): iterable
     {
         $buttons = [Button::make('Uložiť')->method('save')->icon('bs.save')];

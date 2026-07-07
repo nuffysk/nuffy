@@ -49,7 +49,9 @@ class SosController extends Controller
         ]);
 
         if (! empty(trim($data['phone'] ?? '')) && empty($data['phone_consent'])) {
-            return back()->withInput()->with('status', 'Pre zverejnenie telefónneho čísla musíš odsúhlasiť podmienky.');
+            return back()->withInput()->withErrors([
+                'phone_consent' => 'Pre zverejnenie telefónneho čísla musíš odsúhlasiť podmienky.',
+            ]);
         }
         unset($data['phone_consent']);
 

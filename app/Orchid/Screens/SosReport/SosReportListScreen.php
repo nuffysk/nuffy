@@ -13,12 +13,20 @@ class SosReportListScreen extends Screen
     public function query(): iterable
     {
         return [
-            'reports' => SosReport::orderByDesc('created_at')->paginate(20),
+            'reports' => SosReport::with('reporter:id,name,display_name')
+                ->filters()
+                ->defaultSort('created_at', 'desc')
+                ->paginate(20),
         ];
     }
 
     public function name(): ?string { return 'SOS hlásenia'; }
     public function description(): ?string { return 'Stratené a nájdené psy nahlásené používateľmi.'; }
+
+    public function permission(): ?iterable
+    {
+        return ['platform.content'];
+    }
 
     public function commandBar(): iterable { return []; }
 

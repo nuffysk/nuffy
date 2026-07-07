@@ -21,6 +21,11 @@ class LearnTopicListScreen extends Screen
     public function name(): ?string { return 'Zavoditko — témy'; }
     public function description(): ?string { return 'Vzdelávacie články pre majiteľov psíkov.'; }
 
+    public function permission(): ?iterable
+    {
+        return ['platform.content'];
+    }
+
     public function commandBar(): iterable
     {
         return [Link::make('Nová téma')->icon('bs.plus-circle')->route('platform.learn.create')];

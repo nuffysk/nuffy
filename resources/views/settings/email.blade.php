@@ -26,6 +26,10 @@
                 <label for="password" class="text-sm font-medium">Heslo (potvrď zmenu)</label>
                 <input id="password" name="password" type="password" required autocomplete="current-password" class="block w-full rounded-xl border border-input bg-background px-4 py-3 text-base">
                 @error('password')<p class="text-sm text-destructive">{{ $message }}</p>@enderror
+                <p class="text-[11px] text-muted-foreground">
+                    Prihlásil/a si sa cez Google a heslo nemáš? Najprv si ho nastav cez
+                    <a href="{{ route('settings.password') }}" class="text-accent underline">Zmenu hesla</a>.
+                </p>
             </div>
             <button type="submit" class="inline-flex w-full items-center justify-center rounded-full bg-primary px-6 py-3 text-base font-medium text-primary-foreground shadow-[var(--shadow-heart)]">Poslať overovací odkaz</button>
         </form>
